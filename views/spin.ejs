@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="shortcut icon" href="login.jpg" type="image/png">
+  <link rel="apple-touch-icon" href="login.jpg">
+  <title>Spin & Earn To Mpesa</title>
+  <style>
+    :root {
+      --darkYellow: #e1a70a; /*#007bff*/
+      --lightYellow: #f5ba1a;
+      --white: #fff;
+    }
+    body {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+
+    h3{
+      margin: 5px 5px;
+      text-align: start;
+      width: 100%;
+    }
+
+    .roullette {
+      max-width: 400px;
+      padding: 10px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .data-container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px;
+    }
+
+    .holder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 15px;
+      border: 1px solid black;
+      border-radius: 10px;
+      padding: 5px;
+    }
+
+    .data {
+      display: flex;
+      font-size: 16px;
+      padding: 3px 5px;
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+    }
+    .click {
+      color: var(--white);
+      cursor: pointer;
+      background: var(--lightYellow);
+    }
+
+    .data.click:focus, .data.click:hover{
+      background: var(--darkYellow);
+    }
+
+    .wheel-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 5px auto;
+
+      width: 100%;
+      max-width: 250px;
+      height: auto;
+    }
+    .wheel {
+      width: 100%;
+      height: 100%;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 5px solid #333;
+      background: conic-gradient(
+        #f00 0deg 40deg,
+        #0f0 40deg 80deg,
+        #00f 80deg 120deg,
+        rgb(166, 166, 6) 120deg 160deg,
+        #f0f 160deg 200deg,
+        rgb(2, 197, 197) 200deg 240deg,
+        #800080 240deg 280deg,
+        #ff4500 280deg 320deg,
+        #2e8b57 320deg 360deg
+      );
+      transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .segment-text {
+      position: absolute;
+      width: 50px;
+      text-align: center;
+      transform-origin: center;
+      transform: translate(50%, 50%);
+      font-size: 14px;
+      color: var(--white);
+      font-weight: bold;
+      top: 45%;
+      left: 40%;
+    }
+
+    .segment-text:nth-child(1) { transform: rotate(12.5deg) translate(90px); }
+    .segment-text:nth-child(2) { transform: rotate(47.5deg) translate(90px); }
+    .segment-text:nth-child(3) { transform: rotate(88.5deg) translate(90px); }
+    .segment-text:nth-child(4) { transform: rotate(125.5deg) translate(90px); }
+    .segment-text:nth-child(5) { transform: rotate(165.5deg) translate(90px); }
+    .segment-text:nth-child(6) { transform: rotate(210.5deg) translate(90px); }
+    .segment-text:nth-child(7) { transform: rotate(252.5deg) translate(90px); }
+    .segment-text:nth-child(8) { transform: rotate(292.5deg) translate(90px); }
+    .segment-text:nth-child(9) { transform: rotate(332.5deg) translate(90px); }
+
+    .pointer {
+      position: absolute;
+      top: 0%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      background: black;
+      transform: translate(-50%, -150%) rotate(180deg);
+      z-index: 5;
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    }
+    .spin {
+        
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: var(--darkYellow);
+      color: var(--white);
+      border: none;
+      border-radius: 5px;
+
+      display: flex;
+      font-size: 20px;
+      width: 140px;
+      padding: 5px 0;
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .spin:focus, .spin:hover{
+      background: var(--lightYellow);
+    }
+    .spin:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="roullette">
+    <h3>Hi <%= user.firstName %></h3>
+    <div class="data-container">
+      <div class="holder">
+        <div class="data" id="gems">💎: 0</div>
+        <div class="data click" onclick="handleNavigate('/dashboard')">ACCOUNT</div>
+      </div>
+      <div class="holder">
+        <div class="data" id="balance">💰: KSH <%= user.balance %></div>
+        <div class="data click" onclick="handleNavigate('/deposit')">WITHDRAW</div>
+      </div>
+    </div>
+    <div class="wheel-container">
+      <div class="pointer"></div>
+      <div class="wheel">
+      <!-- Text for each segment -->
+      <div class="segment-text">x2.5</div>
+      <div class="segment-text">x1.5</div>
+      <div class="segment-text">x0.25</div>
+      <div class="segment-text">x5.5</div>
+      <div class="segment-text">x0.75</div>
+      <div class="segment-text">x1</div>
+      <div class="segment-text">x2</div>
+      <div class="segment-text">x3.5</div>
+      <div class="segment-text">x0.5</div>
+      </div>
+
+    </div>
+    <button class="spin">SPIN</button>
+  </div>
+
+  <script>
+    const spinButton = document.querySelector('.spin');
+    const wheel = document.querySelector('.wheel');
+    const balanceDiv = document.querySelector('#balance');
+    let balance = 0;
+    let gems = 0;
+
+    const segments = [
+      'x1.5', 'x2.5', 'x0.25', 'x5.5', 
+      'x0.75', 'x1', 'x2', 'x3.5', 'x0.5'
+    ];
+    let isSpinning = false;
+
+    spinButton.addEventListener('click', () => {
+  if (isSpinning) return;
+
+  isSpinning = true;
+  const prizeIndex = Math.floor(Math.random() * segments.length);
+  //const spinDegree = 3600 + prizeIndex * (360 / segments.length);
+  const spinDegree = 3600 + prizeIndex * 3 * (360 / segments.length);
+
+  wheel.style.transform = `rotate(${spinDegree}deg)`; // Spin
+  spinButton.disabled = true;
+
+  setTimeout(() => {
+    const prize = parseFloat(segments[prizeIndex].replace('x', '')); // Extract prize
+    balance += prize * 10; // Update balance
+    isSpinning = false;
+    spinButton.disabled = false;
+
+    // Update balance on server
+    fetch("/users", {
+      method: "PUT",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ balance })
+    })
+    .then(response => response.json())
+    .then(data => {
+      balanceDiv.textContent = `💰: KSH ${data.balance}`;
+      balance = 0; // Reset after server update
+    })
+    .catch(error => console.error('Error:', error));
+  }, 5000); // Wait for spin to complete (5s)
+});
+
+    const handleNavigate  = (url) => {
+      window.location.pathname = url
+    }
+  </script>
+</body>
+</html>

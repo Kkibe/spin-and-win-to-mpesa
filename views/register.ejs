@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link rel="shortcut icon" href="login.jpg" type="image/png">
+	<link rel="apple-touch-icon" href="login.jpg">
+    <title>Register | Spin & Earn To Mpesa</title>
+    <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+	<div class="form_wrapper">
+		<div class="form_container">
+		  <div class="title_container">
+			<h2>Get Started</h2>
+		  </div>
+		  <div class="row clearfix">
+			<div class="">
+			  <form id="form" class="form" action="/register" method="post">
+				<div class="input_field"> 
+                    <span><i aria-hidden="true" class="fa fa-envelope"></i></span>
+					<input type="email" name="email" placeholder="Email" aria-label="Email" required />
+				</div>
+				<div class="input_field"> 
+                    <span><i aria-hidden="true" class="fa fa-phone"></i></span>
+					<input type="tel" name="phone" placeholder="0700000000" aria-label="Phone Number" required minlength="10" maxlength="10"/>
+				</div>
+				<div class="input_field"> 
+                    <span><i aria-hidden="true" class="fa fa-lock"></i></span>
+					<input type="password" name="password" placeholder="Password" aria-label="Password" required />
+				</div>
+				<div class="input_field"> 
+                    <span><i aria-hidden="true" class="fa fa-lock"></i></span>
+					<input type="password" name="confirmPassword" placeholder="Re-type Password" aria-label="Confirm Password" required />
+				</div>
+				<div class="row clearfix">
+				  <div class="col_half">
+					<div class="input_field"> 
+                        <span><i aria-hidden="true" class="fa fa-user"></i></span>
+						<input type="text" name="firstName" placeholder="First Name" aria-label="First Name" required />
+					</div>
+				  </div>
+				  <div class="col_half">
+					<div class="input_field"> 
+                        <span><i aria-hidden="true" class="fa fa-user"></i></span>
+						<input type="text" name="lastName" placeholder="Last Name" aria-label="Last Name" />
+					</div>
+				  </div>
+				</div>
+				<div class="input_field checkbox_option">
+				  <input type="checkbox" id="cb1" required />
+				  <label for="cb1">I agree with terms and conditions</label>
+				</div>
+				<input class="button" type="submit" value="Register" />
+			  </form>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	  <p class="credit">Already have an account? <a href="/login">Sign In</a></p>
+
+	<script>
+		document.getElementById('form').addEventListener('submit', function (event) {
+			const password = document.querySelector('input[name="password"]').value;
+			const confirmPassword = document.querySelector('input[name="confirmPassword"]').value;
+			if (password !== confirmPassword) {
+				event.preventDefault();
+				alert("Passwords do not match!");
+			}
+		});
+	</script>
+</body>
+</html>

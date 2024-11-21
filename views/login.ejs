@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<link rel="shortcut icon" href="login.jpg" type="image/png">
+	<link rel="apple-touch-icon" href="login.jpg">
+    <title>Login | Spin & Earn To Mpesa</title>
+    <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+	<main class="form_wrapper">
+		<section class="form_container">
+			<div class="title_container">
+				<h2>Welcome Back</h2>
+			</div>
+			<form class="form" action="/login" method="post">
+				<div class="input_field">
+					<label for="email">Email</label>
+					<input type="email" name="email" id="email" placeholder="Email" required />
+				</div>
+				<div class="input_field">
+					<label for="password">Password</label>
+					<input type="password" name="password" id="password" placeholder="Password" required />
+				</div>
+				<input class="button" type="submit" value="Login" />
+			</form>
+			<p class="credit">Don't have an account? <a href="/register">Get Started</a></p>
+		</section>
+	</main>
+</body>
+</html>
