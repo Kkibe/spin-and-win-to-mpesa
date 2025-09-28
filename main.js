@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors'); 
 const session = require('express-session');
 const dotenv = require('dotenv');
+const port = process.env.PORT || 8080;
 const { default: mongoose } = require('mongoose');
 
 const userRoute = require("./routes/user");
@@ -102,4 +103,4 @@ app.use("/users", userRoute);
 app.use("/mpesa", mpesaRoute);
 
 // Start server
-app.listen(5000, (req, res) => console.log("listening on http://localhost:5000"));
+app.listen(port, (req, res) => console.log(`listening on ${port}`));
