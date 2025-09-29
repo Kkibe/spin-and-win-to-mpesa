@@ -2,101 +2,516 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="shortcut icon" href="login.jpg" type="image/png">
   <link rel="apple-touch-icon" href="login.jpg">
-  <title>Dashboard  | Spin & Earn To Mpesa</title>
-  <link rel="stylesheet" href="https://demo.targetconnect.net/css/gzip_N824701711/bundle/style.css">
-  <link href="https://demo.targetconnect.net/ext/thm/v2/4.1.11/coventry.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700,300,600" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <title>Dashboard | Spin & Earn To Mpesa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #f59e0b;
+      --secondary-dark: #d97706;
+      --dark: #1f2937;
+      --light: #f8fafc;
+      --gray: #6b7280;
+      --success: #10b981;
+      --error: #ef4444;
+      --white: #ffffff;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      --border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .dashboard-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Alert */
+    .alert {
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: slideIn 0.3s ease;
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .alert-close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: inherit;
+      opacity: 0.7;
+    }
+
+    .alert-close:hover {
+      opacity: 1;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Balance Section */
+    .balance-section {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 20px;
+      padding: 2rem;
+      color: var(--white);
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .balance-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .balance-title {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .balance-amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .balance-subtitle {
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .stat-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    /* Action Cards */
+    .action-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .action-card {
+      background: var(--light);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      border: var(--border);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .action-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    .action-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.5rem;
+      color: var(--white);
+    }
+
+    .action-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .action-description {
+      font-size: 0.85rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+
+    .action-btn {
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .action-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    /* User Info Section */
+    .user-info-section {
+      background: var(--light);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::before {
+      content: "👤";
+      font-size: 1.2rem;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .info-group {
+      margin-bottom: 1rem;
+    }
+
+    .info-label {
+      font-size: 0.85rem;
+      color: var(--gray);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .info-value {
+      background: var(--white);
+      border: var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 1rem;
+      color: var(--dark);
+      width: 100%;
+    }
+
+    /* Logout Section */
+    .logout-section {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: var(--border);
+    }
+
+    .logout-btn {
+      background: transparent;
+      color: var(--error);
+      border: 2px solid var(--error);
+      padding: 0.75rem 2rem;
+      border-radius: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logout-btn:hover {
+      background: var(--error);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 10px;
+      }
+
+      .main-content {
+        padding: 1.5rem;
+      }
+
+      .stats-grid,
+      .action-cards,
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .balance-amount {
+        font-size: 2rem;
+      }
+
+      .action-card {
+        padding: 1rem;
+      }
+    }
+  </style>
 </head>
 
-<body id="container" class="page-main page-student romeo target-connect">
-  <div id="page">
-    <div id="content">
-      <div class="dashboard-content ml-2 mr-2 mt-1 mb-4" >
-        <section>
-          <div class="card-header bg-white border-0">
-            <% if (message) {%>
-              <div class="alert alert-dismissible fade show alert alert-<%= message.type %>" role="alert">
-               <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
-               <strong><%= message.message %></strong>
-              </div>
-             <% } %>
-            <div class="row align-items-space-center">
-              <div class="col-4 text-left">
-                <h6 class="mb-0">Balance: </h6>
-              </div>
-              <div class="col-4 text-left">
-                <h6 class="mb-0" id="balance">💰 <%= user.balance %></h6>
-              </div>
-              <div class="col-4 text-center">
-                <h6 class="mb-0" id="gems">💎 0</h6>
-              </div>
-            </div>
-          </div>
+<body>
+  <div class="dashboard-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">🎯 Spin & Win</div>
+      <div class="subtitle">Your M-Pesa Rewards Dashboard</div>
+    </div>
 
-          <div class="card-header bg-white border-0 pt-4 pb-4">
-            <div class="row align-items-center">
-              <div class="col-12 text-left">
-                <a href="/deposit" class="btn btn-sm btn-primary">ACTIVATE ACCOUNT<i class="fal fa-chevron-circle-right jobs-more-icon"></i></a>
-              </div>
-            </div>
-          </div>
-        </section>
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Alert Message -->
+      <% if (message) { %>
+        <div class="alert alert-<%= message.type === 'success' ? 'success' : 'error' %>">
+          <span><%= message.message %></span>
+          <button class="alert-close" onclick="this.parentElement.style.display='none'">×</button>
+        </div>
+      <% } %>
 
-        <section>
-          <div class="card-body">
-            <form>
-              <h6 class="heading-small text-muted mb-4">User information</h6>
-              <div class="pl-lg-4">
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="form-group focused">
-                      <label class="form-control-label" for="input-username">Phone</label>
-                      <input type="text" id="input-username" class="form-control form-control-alternative" placeholder="Username" value="<%= user.phone %>">
-                    </div>
-                  </div>
-                  <div class="col-lg-6">
-                    <div class="form-group">
-                      <label class="form-control-label" for="input-email">Email address</label>
-                      <input type="email" id="input-email" class="form-control form-control-alternative" placeholder="youremail@example.com" value="<%= user.lastName %>">
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-6">
-                    <div class="form-group focused">
-                      <label class="form-control-label" for="input-first-name">Firts Name</label>
-                      <input type="text" id="input-first-name" class="form-control form-control-alternative" placeholder="First name" value="<%= user.firstName %>">
-                    </div>
-                  </div>
-                  <div class="col-lg-6">
-                    <div class="form-group focused">
-                      <label class="form-control-label" for="input-last-name">Last Name</label>
-                      <input type="text" id="input-last-name" class="form-control form-control-alternative" placeholder="Last name" value="<%= user.lastName %>">
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </form>
-            <div class="row align-items-center">
-              <div class="col-12 text-right">
-                <a href="/logout" class="btn btn-sm btn-primary">SIGN OUT<i class="fal fa-chevron-circle-right jobs-more-icon"></i></a>
-              </div>
-            </div>
+      <!-- Balance Section -->
+      <div class="balance-section">
+        <div class="balance-header">
+          <div class="balance-title">Total Balance</div>
+          <div class="balance-subtitle">Available for withdrawal</div>
+        </div>
+        <div class="balance-amount" id="balance">KSH <%= user.balance %></div>
+        
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-icon">💎</div>
+            <div class="stat-value" id="gems">0</div>
+            <div class="stat-label">Total Gems</div>
           </div>
-        </section>
+          <div class="stat-item">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value" id="spins">0</div>
+            <div class="stat-label">Spins Today</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Cards -->
+      <div class="action-cards">
+        <div class="action-card" onclick="handleNavigate('/spin')">
+          <div class="action-icon">🎮</div>
+          <div class="action-title">Spin & Win</div>
+          <div class="action-description">Spin the wheel and win amazing M-Pesa rewards</div>
+          <button class="action-btn">Start Spinning</button>
+        </div>
+
+        <div class="action-card" onclick="handleNavigate('/deposit')">
+          <div class="action-icon">💳</div>
+          <div class="action-title">Activate Account</div>
+          <div class="action-description">Deposit funds to activate your account and start winning</div>
+          <button class="action-btn">Activate Now</button>
+        </div>
+      </div>
+
+      <!-- User Information -->
+      <div class="user-info-section">
+        <div class="section-title">Profile Information</div>
+        <div class="info-grid">
+          <div class="info-group">
+            <label class="info-label">Phone Number</label>
+            <div class="info-value"><%= user.phone %></div>
+          </div>
+          <div class="info-group">
+            <label class="info-label">Email Address</label>
+            <div class="info-value"><%= user.email || 'Not provided' %></div>
+          </div>
+          <div class="info-group">
+            <label class="info-label">First Name</label>
+            <div class="info-value"><%= user.firstName %></div>
+          </div>
+          <div class="info-group">
+            <label class="info-label">Last Name</label>
+            <div class="info-value"><%= user.lastName %></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logout Section -->
+      <div class="logout-section">
+        <button class="logout-btn" onclick="handleNavigate('/logout')">
+          <span>🚪</span>
+          Sign Out
+        </button>
       </div>
     </div>
   </div>
+
   <script>
-    let balance = parseFloat(localStorage.getItem('balance')) || 0;
+    // Initialize dashboard data
+    let balance = parseFloat(localStorage.getItem('balance')) || <%= user.balance %>;
+    let gems = parseInt(localStorage.getItem('gems')) || 0;
+    let spins = parseInt(localStorage.getItem('spins')) || 0;
+
     const balanceDiv = document.querySelector('#balance');
-    balanceDiv.textContent = `💰 ${balance}`
+    const gemsDiv = document.querySelector('#gems');
+    const spinsDiv = document.querySelector('#spins');
+
+    // Update display
+    balanceDiv.textContent = `KSH ${balance}`;
+    gemsDiv.textContent = gems;
+    spinsDiv.textContent = spins;
+
+    // Handle navigation
+    function handleNavigate(url) {
+      window.location.pathname = url;
+    }
+
+    // Add interactive effects
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add hover effects to action cards
+      const actionCards = document.querySelectorAll('.action-card');
+      actionCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-6px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(-4px)';
+        });
+      });
+
+      // Auto-hide alert after 5 seconds
+      const alert = document.querySelector('.alert');
+      if (alert) {
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 5000);
+      }
+
+      // Add loading animation to buttons
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          if (this.classList.contains('action-btn') || this.classList.contains('logout-btn')) {
+            e.stopPropagation();
+          }
+        });
+      });
+    });
+
+    // Update stats from localStorage if available
+    function updateStats() {
+      const savedBalance = localStorage.getItem('balance');
+      const savedGems = localStorage.getItem('gems');
+      
+      if (savedBalance) {
+        balanceDiv.textContent = `KSH ${savedBalance}`;
+      }
+      if (savedGems) {
+        gemsDiv.textContent = savedGems;
+      }
+    }
+
+    // Check for updates every 2 seconds
+    setInterval(updateStats, 2000);
   </script>
 </body>
 </html>
