@@ -3,31 +3,44 @@ const path = require('path');
 const cors = require('cors'); 
 const session = require('express-session');
 const dotenv = require('dotenv');
-const port = process.env.PORT || 8080;
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const userRoute = require("./routes/user");
 const mpesaRoute = require("./routes/mpesa");
+const authRoute = require("./routes/auth");
+const { isAuthenticated, isNotAuthenticated } = require('./middleware/auth');
 
 const app = express();
 dotenv.config();
 
-// Add these middlewares before your routes
-app.use(express.json()); // Parses JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parses URL-encoded bodies
+// Session store
+const store = new MongoDBStore({
+  uri: process.env.MONGODB_URL,
+  collection: 'sessions'
+});
+
+store.on('error', function(error) {
+  console.error('Session store error:', error);
+});
+
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key-here',
     resave: false,
     saveUninitialized: false,
+    store: store,
     cookie: { 
         secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
 
-// Middleware to make user available in views per session
+// Make user available in views
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || null; // Use session user
+    res.locals.user = req.session.user || null;
     res.locals.message = req.session.message;
     delete req.session.message;
     next();
@@ -36,64 +49,49 @@ app.use((req, res, next) => {
 app.use(cors());
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
-app.use("", require("./routes/auth"));
 
+// Database connection
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log('MongoDB connected');
 }).catch((error) => {
     console.error('MongoDB connection error:', error);
 });
 
-// Authentication middleware
-const requireAuth = (req, res, next) => {
-    if (!req.session.user) { // Check session instead of app.locals
-        return res.redirect('/login');
-    }
-    next();
-};
+// Routes
+app.use("/auth", authRoute);
+app.use("/users", userRoute);
+app.use("/mpesa", mpesaRoute);
 
-// Protected routes - use session user
-app.get('/dashboard', requireAuth, (req, res) => {
-    res.render('index', { 
-        user: req.session.user, // Use session user
-        message: {
-            message: "Logged In",
-            type: "success"
-        }
+// Protected routes
+app.get('/dashboard', isAuthenticated, (req, res) => {
+    res.render('dashboard', { 
+        user: req.session.user,
+        message: req.session.message
     });
 });
 
-app.get('/deposit', requireAuth, (req, res) => {
+app.get('/deposit', isAuthenticated, (req, res) => {
     let result = req.session.result || null;
     res.render('deposit', {
-        user: req.session.user, // Use session user
+        user: req.session.user,
         result
     });
 });
 
-app.get('/', requireAuth, (req, res) => {
+app.get('/', isAuthenticated, (req, res) => {
     res.render('spin', {
-        user: req.session.user // Use session user
+        user: req.session.user
     });
 });
 
-// Public routes - check session instead of app.locals
-app.get('/login', (req, res) => {
-    if (req.session.user) { // Check session instead of app.locals
-        return res.redirect('/');
-    }
-    res.render('login');
+// Public routes
+app.get('/login', isNotAuthenticated, (req, res) => {
+    res.render('login', { error: null });
 }); 
 
-app.get('/register', (req, res) => {
-    if (req.session.user) { // Check session instead of app.locals
-        return res.redirect('/');
-    }
-    res.render('register');
+app.get('/register', isNotAuthenticated, (req, res) => {
+    res.render('register', { error: null });
 });
-
-app.use("/users", userRoute);
-app.use("/mpesa", mpesaRoute);
 
 // Logout route
 app.get('/logout', (req, res) => {
@@ -105,5 +103,5 @@ app.get('/logout', (req, res) => {
     });
 });
 
-// Start server
+const port = process.env.PORT || 8080;
 app.listen(port, () => console.log(`Server listening on port ${port}`));
