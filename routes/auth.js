@@ -1,91 +1,130 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const router = require("express").Router();
-const User = require("../models/User");
-const SESSION_DURATION = 12 * 60 * 60; // 12 hours in seconds
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+const { isNotAuthenticated } = require('../middleware/auth');
 
-//REGISTER
-router.post("/register", async (req, res) => {
-    try {
-        // Check if user already exists
-        const existingUser = await User.findOne({ email: req.body.email});
-        if (existingUser) {
-            return res.render('register', { error: 'Email is already registered.' });
-        }
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(req.body.password, salt);
-        
-        const newUser = new User({
-            phone: req.body.phone,
-            email: req.body.email,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            password: hashedPassword,
-        });
-        const user = await newUser.save();
-
-        const accessToken = jwt.sign({ 
-            id: user._id, idAdmin: user.isAdmin,
-        }, process.env.JWT_SECRET, {expiresIn: SESSION_DURATION});
-
-        const { password, ...others } = user._doc;
-        
-        // Store user in session
-        req.session.user = {...others, accessToken};
-
-        req.session.message = {
-            type: "success",
-            message: "User registered successfully"
-        }
-
-        return res.redirect('/dashboard');
-
-    } catch (err) {
-        res.render('register', {message: err.message, type: 'danger'});
-    }
+// Register Page
+router.get('/register', isNotAuthenticated, (req, res) => {
+  res.render('register', { 
+    error: null 
+  });
 });
 
-//LOGIN
-router.post("/login", async (req, res) => {
-    try {
-        const user = await User.findOne({ email: req.body.email});
-        if (!user) {
-            return res.render('login', {message: "User not found!", type: 'danger'});
-        }
-    
-        const validated = await bcrypt.compare(req.body.password, user.password);
-        if (!validated) {
-            return res.render('login', {message: "Invalid email or password", type: 'danger'});
-        }
+// Register Handler
+router.post('/register', isNotAuthenticated, async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, password, confirmPassword } = req.body;
 
-        const accessToken = jwt.sign({
-            id: user._id, idAdmin: user.isAdmin,
-        }, process.env.JWT_SECRET, {expiresIn: SESSION_DURATION});
-
-        const { password, ...others } = user._doc;
-        
-        // Store user in session
-        req.session.user = {...others, accessToken};
-
-        req.session.message = {
-            type: "success",
-            message: "Login successful"
-        }
-        
-        return res.redirect('/');
-    } catch (err) {
-        res.render('login', {message: err.message, type: 'danger'});
+    // Validation
+    if (password !== confirmPassword) {
+      return res.render('register', {
+        error: 'Passwords do not match'
+      });
     }
-});
 
-// Logout route
-router.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Error destroying session:', err);
-        }
-        res.redirect('/login');
+    if (password.length < 6) {
+      return res.render('register', {
+        error: 'Password must be at least 6 characters long'
+      });
+    }
+
+    // Check if user exists
+    const existingUser = await User.findOne({
+      $or: [{ email }, { phone }]
     });
+
+    if (existingUser) {
+      return res.render('register', {
+        error: 'User with this email or phone number already exists'
+      });
+    }
+
+    // Create new user
+    const user = new User({ 
+      firstName, 
+      lastName, 
+      email, 
+      phone, 
+      password,
+      balance: 0,
+      gems: 0,
+      spins: 10,
+      isActivated: false
+    });
+    await user.save();
+
+    // Store user in session (without password)
+    const { password: _, ...userWithoutPassword } = user._doc;
+    req.session.user = userWithoutPassword;
+
+    req.session.message = {
+      type: "success",
+      message: "Registration successful!"
+    }
+
+    res.redirect('/');
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.render('register', {
+      error: 'An error occurred during registration'
+    });
+  }
+});
+
+// Login Page
+router.get('/login', isNotAuthenticated, (req, res) => {
+  res.render('login', { 
+    error: null 
+  });
+});
+
+// Login Handler
+router.post('/login', isNotAuthenticated, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.render('login', {
+        error: 'Invalid email or password'
+      });
+    }
+
+    // Check password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.render('login', {
+        error: 'Invalid email or password'
+      });
+    }
+
+    // Store user in session (without password)
+    const { password: _, ...userWithoutPassword } = user._doc;
+    req.session.user = userWithoutPassword;
+
+    req.session.message = {
+      type: "success",
+      message: "Login successful!"
+    }
+
+    res.redirect('/');
+  } catch (error) {
+    console.error('Login error:', error);
+    res.render('login', {
+      error: 'An error occurred during login'
+    });
+  }
+});
+
+// Logout
+router.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+    }
+    res.redirect('/login');
+  });
 });
 
 module.exports = router;
