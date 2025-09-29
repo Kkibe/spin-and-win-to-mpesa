@@ -20,8 +20,17 @@ app.use(session({
     cookie: { 
         secure: false, // Set to true if using HTTPS
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        httpOnly: true
+        httpOnly: false, // Allow JavaScript access
+        sameSite: 'none' // Required for cross-origin
     }
+}));
+
+// Add CORS configuration for cross-origin requests
+app.use(cors({
+    origin: ['https://spin-to-win.onrender.com', 'https://spin-and-win-to-mpesa-api-1089664169997.europe-west1.run.app'],
+    credentials: true, // Important for cookies
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 
 // Debug middleware - only for non-static files and important routes
