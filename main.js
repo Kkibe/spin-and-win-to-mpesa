@@ -16,36 +16,47 @@ dotenv.config();
 app.use(express.json()); // Parses JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parses URL-encoded bodies
 app.use(session({
-    secret: 'secretKey',
+    secret: process.env.SESSION_SECRET || 'my-session-secret-key',
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: true } // In production, set this to true with HTTPS
+    saveUninitialized: false, // Changed to false for security
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
 }));
 
-// Middleware to make user globally available in views
+// Middleware to make user available in views per session
 app.use((req, res, next) => {
-    //res.locals.user = req.session.user || null; // Set user to null if not logged in
-    res.locals.message = req.session.message
-    delete req.session.message
+    res.locals.user = req.session.user || null; // User is now per session
+    res.locals.message = req.session.message;
+    delete req.session.message;
     next();
 });
 
 app.use(cors());
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
-app.use("", require("./routes/auth"))
+app.use("", require("./routes/auth"));
 
 mongoose  
-    .connect(process.env.MONGODB_URL).then(() => {}).catch((error) => {});
+    .connect(process.env.MONGODB_URL).then(() => {
+        console.log('MongoDB connected');
+    }).catch((error) => {
+        console.error('MongoDB connection error:', error);
+    });
 
-app.get('/dashboard', (req, res) => {
-    const user = app.locals.user;
-    if (!user) {
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+    if (!req.session.user) {
         return res.redirect('/login');
     }
+    next();
+};
 
+// Protected routes
+app.get('/dashboard', requireAuth, (req, res) => {
     res.render('index', { 
-        user,
+        user: req.session.user,
         message: {
             message: "Logged In",
             type: "success"
@@ -53,54 +64,47 @@ app.get('/dashboard', (req, res) => {
     });
 });
 
-// Use routes
+app.get('/deposit', requireAuth, (req, res) => {
+    let result = req.session.result || null;
+    res.render('deposit', {
+        user: req.session.user, 
+        result
+    });
+});
+
+app.get('/', requireAuth, (req, res) => {
+    res.render('spin', {
+        user: req.session.user
+    });
+});
+
+// Public routes
 app.get('/login', (req, res) => {
-    const user = app.locals.user;
-    if (user) {
-        const referer = req.get('Referer'); // Get the previous page URL from the header
-        if (referer) {
-            return res.redirect(referer); // Redirect to the previous page
-        } else {
-            return res.redirect('/'); // Fallback if no referer is present
-        }
+    if (req.session.user) {
+        return res.redirect('/');
     }
     res.render('login');
 }); 
 
 app.get('/register', (req, res) => {
-    const user = app.locals.user;
-    if (user) {
-        const referer = req.get('Referer'); // Get the previous page URL from the header
-        if (referer) {
-            return res.redirect(referer); // Redirect to the previous page
-        } else {
-            return res.redirect('/dashboard'); // Fallback if no referer is present
-        }
+    if (req.session.user) {
+        return res.redirect('/');
     }
     res.render('register');
-});
-
-app.get('/deposit', (req, res) => {
-    const user = app.locals.user;
-    let result =  app.locals.result || null;
-    if (!user) {
-        return res.redirect('/login');
-    }
-
-    res.render('deposit', {user, result});
-});
-
-// Dashboard route
-app.get('/', (req, res) => {
-    const user = app.locals.user;
-    if (!user) {
-        return res.redirect('/login');
-    }
-    res.render('spin', {user});
 });
 
 app.use("/users", userRoute);
 app.use("/mpesa", mpesaRoute);
 
+// Logout route
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+        }
+        res.redirect('/login');
+    });
+});
+
 // Start server
-app.listen(port, (req, res) => console.log(`listening on ${port}`));
+app.listen(port, () => console.log(`Server listening on port ${port}`));
