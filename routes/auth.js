@@ -4,13 +4,6 @@ const router = require("express").Router();
 const User = require("../models/User");
 const SESSION_DURATION = 12 * 60 * 60; // 12 hours in seconds
 
-// Logout route
-router.get('/logout', (req, res) => {
-    req.session.destroy(() => {
-        res.redirect('/login');
-    });
-});
-
 //REGISTER
 router.post("/register", async (req, res) => {
     try {
@@ -20,9 +13,8 @@ router.post("/register", async (req, res) => {
             return res.render('register', { error: 'Email is already registered.' });
         }
         const salt = await bcrypt.genSalt(10);
-        // Hash the password
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
-        // Save the user in the database
+        
         const newUser = new User({
             phone: req.body.phone,
             email: req.body.email,
@@ -38,7 +30,7 @@ router.post("/register", async (req, res) => {
 
         const { password, ...others } = user._doc;
         
-        // Store user in session instead of app.locals
+        // Store user in session
         req.session.user = {...others, accessToken};
 
         req.session.message = {
@@ -72,7 +64,7 @@ router.post("/login", async (req, res) => {
 
         const { password, ...others } = user._doc;
         
-        // Store user in session instead of app.locals
+        // Store user in session
         req.session.user = {...others, accessToken};
 
         req.session.message = {
@@ -84,6 +76,16 @@ router.post("/login", async (req, res) => {
     } catch (err) {
         res.render('login', {message: err.message, type: 'danger'});
     }
+});
+
+// Logout route
+router.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+        }
+        res.redirect('/login');
+    });
 });
 
 module.exports = router;
