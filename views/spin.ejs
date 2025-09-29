@@ -652,6 +652,16 @@
           this.style.transform = 'translateY(0)';
         });
       });
+
+      // Show activation status message
+      <% if (!user.isActivated) { %>
+        setTimeout(() => {
+          if (!localStorage.getItem('activationReminderShown')) {
+            alert('Activate your account to get 50 bonus spins and unlock withdrawals!');
+            localStorage.setItem('activationReminderShown', 'true');
+          }
+        }, 1000);
+      <% } %>
     });
   </script>
 </body>
