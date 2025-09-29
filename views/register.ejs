@@ -7,6 +7,7 @@
     <link rel="shortcut icon" href="login.jpg" type="image/png">
     <link rel="apple-touch-icon" href="login.jpg">
     <title>Register | Spin & Earn To Mpesa</title>
+    <link rel="stylesheet" href="/css/index.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -239,12 +240,12 @@
                 padding: 1.5rem;
                 margin: 10px;
             }
-            
+
             .form-row {
                 grid-template-columns: 1fr;
                 gap: 0.5rem;
             }
-            
+
             .form-input {
                 padding: 0.7rem;
                 font-size: 0.8rem;
@@ -253,6 +254,11 @@
     </style>
 </head>
 <body>
+    <% if (error) { %>
+        <div class="message message-error">
+          <%= error %>
+        </div>
+      <% } %>
     <div class="auth-container">
         <!-- Header -->
         <div class="header">
@@ -262,53 +268,53 @@
         </div>
 
         <!-- Form -->
-        <form id="form" class="form" action="/register" method="post">
+        <form id="form" class="form" action="/auth/register" method="post">
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" for="firstName">First Name</label>
-                    <input 
-                        type="text" 
-                        name="firstName" 
+                    <input
+                        type="text"
+                        name="firstName"
                         id="firstName"
                         class="form-input"
-                        placeholder="First name" 
-                        required 
+                        placeholder="First name"
+                        required
                     />
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="lastName">Last Name</label>
-                    <input 
-                        type="text" 
-                        name="lastName" 
+                    <input
+                        type="text"
+                        name="lastName"
                         id="lastName"
                         class="form-input"
-                        placeholder="Last name" 
+                        placeholder="Last name"
                     />
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="email">Email Address</label>
-                <input 
-                    type="email" 
-                    name="email" 
+                <input
+                    type="email"
+                    name="email"
                     id="email"
                     class="form-input"
-                    placeholder="Enter your email" 
-                    required 
+                    placeholder="Enter your email"
+                    required
                 />
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="phone">Phone Number</label>
-                <input 
-                    type="tel" 
-                    name="phone" 
+                <input
+                    type="tel"
+                    name="phone"
                     id="phone"
                     class="form-input"
-                    placeholder="0712345678" 
+                    placeholder="0712345678"
                     pattern="^(?:\+254|0)(7|1)\d{8}$"
-                    required 
+                    required
                 />
                 <div class="error-message" id="phoneError">Please enter a valid Kenyan phone number</div>
             </div>
@@ -316,24 +322,24 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input 
-                        type="password" 
-                        name="password" 
+                    <input
+                        type="password"
+                        name="password"
                         id="password"
                         class="form-input"
-                        placeholder="Create password" 
-                        required 
+                        placeholder="Create password"
+                        required
                     />
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="confirmPassword">Confirm Password</label>
-                    <input 
-                        type="password" 
-                        name="confirmPassword" 
+                    <input
+                        type="password"
+                        name="confirmPassword"
                         id="confirmPassword"
                         class="form-input"
-                        placeholder="Confirm password" 
-                        required 
+                        placeholder="Confirm password"
+                        required
                     />
                 </div>
             </div>
@@ -354,7 +360,7 @@
         <!-- Footer -->
         <div class="footer">
             <p class="footer-text">
-                Already have an account? 
+                Already have an account?
                 <a href="/login" class="footer-link">Sign In</a>
             </p>
         </div>

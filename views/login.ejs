@@ -7,6 +7,7 @@
     <link rel="shortcut icon" href="login.jpg" type="image/png">
     <link rel="apple-touch-icon" href="login.jpg">
     <title>Login | Spin & Earn To Mpesa</title>
+    <link rel="stylesheet" href="/css/index.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -176,6 +177,11 @@
     </style>
 </head>
 <body>
+    <% if (error) { %>
+        <div class="message message-error">
+          <%= error %>
+        </div>
+      <% } %>
     <div class="auth-container">
         <!-- Header -->
         <div class="header">
@@ -185,28 +191,28 @@
         </div>
 
         <!-- Form -->
-        <form class="form" action="/login" method="post">
+        <form class="form" action="/auth/login" method="post">
             <div class="form-group">
                 <label class="form-label" for="email">Email Address</label>
-                <input 
-                    type="email" 
-                    name="email" 
-                    id="email" 
+                <input
+                    type="email"
+                    name="email"
+                    id="email"
                     class="form-input"
-                    placeholder="Enter your email" 
-                    required 
+                    placeholder="Enter your email"
+                    required
                 />
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="password">Password</label>
-                <input 
-                    type="password" 
-                    name="password" 
-                    id="password" 
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
                     class="form-input"
-                    placeholder="Enter your password" 
-                    required 
+                    placeholder="Enter your password"
+                    required
                 />
             </div>
 
@@ -218,7 +224,7 @@
         <!-- Footer -->
         <div class="footer">
             <p class="footer-text">
-                Don't have an account? 
+                Don't have an account?
                 <a href="/register" class="footer-link">Get Started</a>
             </p>
         </div>

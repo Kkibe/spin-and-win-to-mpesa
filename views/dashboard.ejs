@@ -7,6 +7,7 @@
   <link rel="shortcut icon" href="login.jpg" type="image/png">
   <link rel="apple-touch-icon" href="login.jpg">
   <title>Dashboard | Spin & Earn To Mpesa</title>
+  <link rel="stylesheet" href="/css/index.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -437,7 +438,7 @@
           const size = Math.max(rect.width, rect.height);
           const x = e.clientX - rect.left - size / 2;
           const y = e.clientY - rect.top - size / 2;
-          
+
           ripple.style.cssText = `
             position: absolute;
             border-radius: 50%;
@@ -449,11 +450,11 @@
             left: ${x}px;
             top: ${y}px;
           `;
-          
+
           this.style.position = 'relative';
           this.style.overflow = 'hidden';
           this.appendChild(ripple);
-          
+
           setTimeout(() => ripple.remove(), 600);
         });
       });

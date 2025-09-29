@@ -7,6 +7,7 @@
   <link rel="shortcut icon" href="login.jpg" type="image/png">
   <link rel="apple-touch-icon" href="login.jpg">
   <title>Spin & Earn To Mpesa</title>
+  <link rel="stylesheet" href="/css/index.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -47,7 +48,7 @@
       border-radius: 24px;
       padding: 1.5rem;
       max-width: 420px;
-      width: 100%;
+      /*width: 100%;*/
       box-shadow: var(--shadow);
       border: 1px solid rgba(255, 255, 255, 0.2);
       position: relative;
@@ -453,7 +454,7 @@
         </div>
       </div>
       <button class="spin-btn" id="spinBtn">SPIN 🎮</button>
-      
+
       <!-- NEW: Spins Counter -->
       <div class="spins-counter">
         Spins Remaining: <span class="spins-count" id="spinsCount"><%= user.spins || 10 %></span>
@@ -496,10 +497,10 @@
       // Reset wheel position for multiple spins
       wheel.style.transition = 'none';
       wheel.style.transform = 'rotate(0deg)';
-      
+
       // Force reflow
       void wheel.offsetWidth;
-      
+
       // Start spin with smooth transition
       wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
       wheel.style.transform = `rotate(${spinDegree}deg)`;
@@ -507,7 +508,7 @@
       setTimeout(() => {
         const prize = parseFloat(segments[prizeIndex].replace('x', ''));
         const winnings = prize * 10;
-        
+
         balance += winnings;
         gems += Math.floor(winnings / 5);
         spins -= 1;
@@ -516,7 +517,7 @@
         balanceDiv.textContent = `KSH ${balance}`;
         gemsDiv.textContent = gems;
         spinsCountDiv.textContent = spins;
-        
+
         // Show winning animation
         wheel.classList.add('winning-animation');
         setTimeout(() => wheel.classList.remove('winning-animation'), 500);
@@ -542,20 +543,20 @@
     function showCelebration(message) {
       // Show celebration container
       celebration.style.display = 'block';
-      
+
       // Create confetti
       createConfetti();
-      
+
       // Create fireworks
       createFireworks();
-      
+
       // Create money rain
       createMoneyRain();
-      
+
       // Show win message
       winMessage.textContent = message;
       winMessage.style.display = 'block';
-      
+
       // Hide everything after 4 seconds
       setTimeout(() => {
         celebration.style.display = 'none';
@@ -583,7 +584,7 @@
           firework.style.left = Math.random() * 100 + 'vw';
           firework.style.top = Math.random() * 100 + 'vh';
           firework.style.background = getRandomColor();
-          
+
           // Create explosion effect
           for (let j = 0; j < 12; j++) {
             const particle = document.createElement('div');
@@ -597,7 +598,7 @@
             particle.style.top = firework.style.top;
             celebration.appendChild(particle);
           }
-          
+
           celebration.appendChild(firework);
         }, i * 200);
       }
@@ -626,7 +627,7 @@
       fetch("/users", {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           balance: newBalance,
           gems: newGems,
           spins: newSpins
@@ -634,7 +635,7 @@
       })
       .then(response => response.json())
       .then(data => {
-        console.log('User data updated successfully');
+        alert('User data updated successfully');
       })
       .catch(error => console.error('Error updating user data:', error));
     }
@@ -651,7 +652,7 @@
         card.addEventListener('mouseenter', function() {
           this.style.transform = 'translateY(-4px)';
         });
-        
+
         card.addEventListener('mouseleave', function() {
           this.style.transform = 'translateY(0)';
         });

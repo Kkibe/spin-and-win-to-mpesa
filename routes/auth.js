@@ -1,18 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { isNotAuthenticated } = require('../middleware/auth');
 
 // Register Page
-router.get('/register', isNotAuthenticated, (req, res) => {
-  res.render('register', { 
-    error: null 
+router.get('/register', (req, res) => {
+  // If user is already logged in, redirect to home
+  if (req.session.user) {
+    return res.redirect('/');
+  }
+  res.render('register', {
+    error: null
   });
 });
 
 // Register Handler
-router.post('/register', isNotAuthenticated, async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
+    // If user is already logged in, redirect to home
+    if (req.session.user) {
+      return res.redirect('/');
+    }
+
     const { firstName, lastName, email, phone, password, confirmPassword } = req.body;
 
     // Validation
@@ -40,11 +48,11 @@ router.post('/register', isNotAuthenticated, async (req, res) => {
     }
 
     // Create new user
-    const user = new User({ 
-      firstName, 
-      lastName, 
-      email, 
-      phone, 
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      phone,
       password,
       balance: 0,
       gems: 0,
@@ -54,15 +62,32 @@ router.post('/register', isNotAuthenticated, async (req, res) => {
     await user.save();
 
     // Store user in session (without password)
-    const { password: _, ...userWithoutPassword } = user._doc;
-    req.session.user = userWithoutPassword;
+    const userSessionData = {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      balance: user.balance,
+      gems: user.gems,
+      spins: user.spins,
+      isActivated: user.isActivated,
+      isAdmin: user.isAdmin
+    };
 
-    req.session.message = {
-      type: "success",
-      message: "Registration successful!"
-    }
+    req.session.user = userSessionData;
 
-    res.redirect('/');
+    // Save session before redirect
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.render('register', {
+          error: 'Registration successful but session error occurred'
+        });
+      }
+      res.redirect('/');
+    });
+
   } catch (error) {
     console.error('Registration error:', error);
     res.render('register', {
@@ -72,15 +97,24 @@ router.post('/register', isNotAuthenticated, async (req, res) => {
 });
 
 // Login Page
-router.get('/login', isNotAuthenticated, (req, res) => {
-  res.render('login', { 
-    error: null 
+router.get('/login', (req, res) => {
+  // If user is already logged in, redirect to home
+  if (req.session.user) {
+    return res.redirect('/');
+  }
+  res.render('login', {
+    error: null
   });
 });
 
 // Login Handler
-router.post('/login', isNotAuthenticated, async (req, res) => {
+router.post('/login', async (req, res) => {
   try {
+    // If user is already logged in, redirect to home
+    if (req.session.user) {
+      return res.redirect('/');
+    }
+
     const { email, password } = req.body;
 
     // Find user
@@ -100,15 +134,32 @@ router.post('/login', isNotAuthenticated, async (req, res) => {
     }
 
     // Store user in session (without password)
-    const { password: _, ...userWithoutPassword } = user._doc;
-    req.session.user = userWithoutPassword;
+    const userSessionData = {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: user.phone,
+      balance: user.balance,
+      gems: user.gems,
+      spins: user.spins,
+      isActivated: user.isActivated,
+      isAdmin: user.isAdmin
+    };
 
-    req.session.message = {
-      type: "success",
-      message: "Login successful!"
-    }
+    req.session.user = userSessionData;
 
-    res.redirect('/');
+    // Save session before redirect
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.render('login', {
+          error: 'Login successful but session error occurred'
+        });
+      }
+      res.redirect('/');
+    });
+
   } catch (error) {
     console.error('Login error:', error);
     res.render('login', {

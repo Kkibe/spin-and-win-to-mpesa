@@ -7,6 +7,7 @@
     <link rel="shortcut icon" href="login.jpg" type="image/png">
     <link rel="apple-touch-icon" href="login.jpg">
     <title>Activate Account | Spin & Earn To Mpesa</title>
+    <link rel="stylesheet" href="/css/index.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -271,14 +272,14 @@
                     <span>📱</span>
                     Phone Number
                 </label>
-                <input 
-                    type="tel" 
-                    id="phoneNumber" 
+                <input
+                    type="tel"
+                    id="phoneNumber"
                     class="form-input"
-                    placeholder="+254712345678 or 0712345678" 
-                    required  
-                    title="Please enter a valid mobile number" 
-                    name="number" 
+                    placeholder="+254712345678 or 0712345678"
+                    required
+                    title="Please enter a valid mobile number"
+                    name="number"
                     pattern="^(?:\+254|0)(7|1)\d{8}$"
                     value="<%= user ? user.phone : '' %>"
                 >
@@ -289,14 +290,14 @@
                     <span>💵</span>
                     Amount
                 </label>
-                <input 
-                    type="number" 
-                    name="amount" 
-                    id="amount" 
+                <input
+                    type="number"
+                    name="amount"
+                    id="amount"
                     class="form-input"
-                    value="189" 
-                    readonly 
-                    required 
+                    value="189"
+                    readonly
+                    required
                     min="50"
                 >
             </div>
@@ -338,7 +339,7 @@
                 event.preventDefault();
                 errorMessage.textContent = "Invalid phone number format. Please use +2547XXXXXXXX or 07XXXXXXXX.";
                 errorMessage.style.display = 'block';
-                
+
                 // Hide error after 5 seconds
                 setTimeout(() => {
                     errorMessage.style.display = 'none';
