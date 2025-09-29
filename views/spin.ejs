@@ -9,6 +9,7 @@
   <title>Spin & Earn To Mpesa</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    /* ALL YOUR EXISTING CSS REMAINS EXACTLY THE SAME */
     :root {
       --primary: #6366f1;
       --primary-dark: #4f46e5;
@@ -135,7 +136,7 @@
 
     .wheel-section {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
 
     .wheel-title {
@@ -240,6 +241,24 @@
       box-shadow: none;
     }
 
+    /* NEW: Spins counter */
+    .spins-counter {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark);
+      background: var(--light);
+      padding: 0.75rem;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .spins-count {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
     .winning-animation {
       animation: pulse 0.5s ease-in-out;
     }
@@ -250,7 +269,7 @@
       100% { transform: scale(1); }
     }
 
-    /* Celebration Animations */
+    /* Celebration Animations (all your existing celebration CSS remains) */
     .celebration {
       position: fixed;
       top: 0;
@@ -400,7 +419,7 @@
     <div class="stats-container">
       <div class="stat-card">
         <div class="stat-icon">💎</div>
-        <div class="stat-value" id="gems">0</div>
+        <div class="stat-value" id="gems"><%= user.gems || 0 %></div>
         <div class="stat-label">Total Gems</div>
         <button class="action-btn" onclick="handleNavigate('/dashboard')">Account</button>
       </div>
@@ -431,6 +450,11 @@
         </div>
       </div>
       <button class="spin-btn" id="spinBtn">SPIN 🎮</button>
+      
+      <!-- NEW: Spins Counter -->
+      <div class="spins-counter">
+        Spins Remaining: <span class="spins-count" id="spinsCount"><%= user.spins || 10 %></span>
+      </div>
     </div>
   </div>
 
@@ -443,16 +467,23 @@
     const wheel = document.getElementById('wheel');
     const balanceDiv = document.getElementById('balance');
     const gemsDiv = document.getElementById('gems');
+    const spinsCountDiv = document.getElementById('spinsCount');
     const celebration = document.getElementById('celebration');
     const winMessage = document.getElementById('winMessage');
 
     const segments = ['x1.5', 'x2.5', 'x0.25', 'x5.5', 'x0.75', 'x1', 'x2', 'x3.5', 'x0.5'];
     let isSpinning = false;
     let balance = <%= user.balance %>;
-    let gems = 0;
+    let gems = <%= user.gems || 0 %>;
+    let spins = <%= user.spins || 10 %>;
+    let totalSpins = <%= user.totalSpins || 0 %>;
 
     spinBtn.addEventListener('click', () => {
       if (isSpinning) return;
+      if (spins <= 0) {
+        alert("No spins remaining! Please activate your account to get more spins.");
+        return;
+      }
 
       isSpinning = true;
       spinBtn.disabled = true;
@@ -473,27 +504,48 @@
 
       setTimeout(() => {
         const prize = parseFloat(segments[prizeIndex].replace('x', ''));
-        const winnings = prize * 10;
         
+        // PROGRESSIVE SYSTEM: Base amount increases with gems
+        const baseAmount = 10 + (Math.floor(gems / 10) * 5); // +5 KSH every 10 gems
+        const winnings = prize * baseAmount;
+        
+        // Update user stats
         balance += winnings;
-        gems += Math.floor(winnings / 5);
+        gems += Math.floor(winnings / 2); // 1 gem per 2 KSH
+        spins -= 1; // Decrease spins count
+        totalSpins += 1;
 
         // Update UI
         balanceDiv.textContent = `KSH ${balance}`;
         gemsDiv.textContent = gems;
+        spinsCountDiv.textContent = spins;
         
         // Show winning animation
         wheel.classList.add('winning-animation');
         setTimeout(() => wheel.classList.remove('winning-animation'), 500);
 
-        // Show full-screen celebration
-        showCelebration(`You won ${winnings} KSH! 🎉`);
+        // Show full-screen celebration for wins over 50 KSH
+        if (winnings >= 50) {
+          showCelebration(`You won ${winnings} KSH! 🎉`);
+        } else {
+          // Small notification for smaller wins
+          setTimeout(() => {
+            alert(`You won ${winnings} KSH!`);
+          }, 500);
+        }
 
-        // Update server
-        updateServerBalance(balance);
+        // Update server with all user data
+        updateServerData(balance, gems, spins, totalSpins);
 
         isSpinning = false;
         spinBtn.disabled = false;
+
+        // Check if spins are depleted
+        if (spins <= 0) {
+          setTimeout(() => {
+            alert("Spins depleted! Activate your account to get 50 more spins.");
+          }, 1000);
+        }
       }, 4200);
     });
 
@@ -580,17 +632,22 @@
       return colors[Math.floor(Math.random() * colors.length)];
     }
 
-    function updateServerBalance(newBalance) {
+    function updateServerData(newBalance, newGems, newSpins, newTotalSpins) {
       fetch("/users", {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ balance: newBalance })
+        body: JSON.stringify({ 
+          balance: newBalance,
+          gems: newGems,
+          spins: newSpins,
+          totalSpins: newTotalSpins
+        })
       })
       .then(response => response.json())
       .then(data => {
-        console.log('Balance updated successfully');
+        console.log('User data updated successfully');
       })
-      .catch(error => console.error('Error updating balance:', error));
+      .catch(error => console.error('Error updating user data:', error));
     }
 
     function handleNavigate(url) {
