@@ -2,109 +2,170 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="shortcut icon" href="login.jpg" type="image/png">
   <link rel="apple-touch-icon" href="login.jpg">
   <title>Spin & Earn To Mpesa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --darkYellow: #e1a70a; /*#007bff*/
-      --lightYellow: #f5ba1a;
-      --white: #fff;
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #f59e0b;
+      --secondary-dark: #d97706;
+      --dark: #1f2937;
+      --light: #f8fafc;
+      --gray: #6b7280;
+      --success: #10b981;
+      --white: #ffffff;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
     }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      width: 100%;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #f0f0f0;
-      font-family: Arial, sans-serif;
+      padding: 20px;
     }
 
-    h3{
-      margin: 5px 5px;
-      text-align: start;
+    .game-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 2rem;
+      max-width: 420px;
       width: 100%;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .roullette {
-      max-width: 400px;
-      padding: 10px;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .data-container {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 5px;
-    }
-
-    .holder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 15px;
-      border: 1px solid black;
-      border-radius: 10px;
-      padding: 5px;
-    }
-
-    .data {
-      display: flex;
-      font-size: 16px;
-      padding: 3px 5px;
+    .user-header {
       text-align: center;
-      align-items: center;
-      justify-content: center;
-      border-radius: 20px;
-    }
-    .click {
-      color: var(--white);
-      cursor: pointer;
-      background: var(--lightYellow);
+      margin-bottom: 2rem;
     }
 
-    .data.click:focus, .data.click:hover{
-      background: var(--darkYellow);
+    .welcome-text {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .user-name {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .subtitle {
+      color: var(--gray);
+      font-size: 0.9rem;
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--light);
+      border-radius: 16px;
+      padding: 1.2rem;
+      text-align: center;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--gray);
+      font-weight: 500;
+    }
+
+    .action-btn {
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+
+    .action-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .wheel-section {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .wheel-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 1rem;
     }
 
     .wheel-container {
       position: relative;
       width: 280px;
       height: 280px;
-      margin: 5px auto;
-
-      width: 100%;
-      max-width: 250px;
-      height: auto;
+      margin: 0 auto;
     }
+
     .wheel {
       width: 100%;
       height: 100%;
-      width: 240px;
-      height: 240px;
       border-radius: 50%;
-      border: 5px solid #333;
+      border: 4px solid var(--dark);
       background: conic-gradient(
-        #f00 0deg 40deg,
-        #0f0 40deg 80deg,
-        #00f 80deg 120deg,
-        rgb(166, 166, 6) 120deg 160deg,
-        #f0f 160deg 200deg,
-        rgb(2, 197, 197) 200deg 240deg,
-        #800080 240deg 280deg,
-        #ff4500 280deg 320deg,
-        #2e8b57 320deg 360deg
+        #ef4444 0deg 40deg,
+        #22c55e 40deg 80deg,
+        #3b82f6 80deg 120deg,
+        #eab308 120deg 160deg,
+        #a855f7 160deg 200deg,
+        #06b6d4 200deg 240deg,
+        #f97316 240deg 280deg,
+        #ec4899 280deg 320deg,
+        #84cc16 320deg 360deg
       );
-      transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+      transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
 
     .segment-text {
@@ -112,146 +173,274 @@
       width: 50px;
       text-align: center;
       transform-origin: center;
-      transform: translate(50%, 50%);
       font-size: 14px;
       color: var(--white);
-      font-weight: bold;
+      font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
       top: 45%;
       left: 40%;
     }
 
-    .segment-text:nth-child(1) { transform: rotate(12.5deg) translate(90px); }
-    .segment-text:nth-child(2) { transform: rotate(47.5deg) translate(90px); }
-    .segment-text:nth-child(3) { transform: rotate(88.5deg) translate(90px); }
-    .segment-text:nth-child(4) { transform: rotate(125.5deg) translate(90px); }
-    .segment-text:nth-child(5) { transform: rotate(165.5deg) translate(90px); }
-    .segment-text:nth-child(6) { transform: rotate(210.5deg) translate(90px); }
-    .segment-text:nth-child(7) { transform: rotate(252.5deg) translate(90px); }
-    .segment-text:nth-child(8) { transform: rotate(292.5deg) translate(90px); }
-    .segment-text:nth-child(9) { transform: rotate(332.5deg) translate(90px); }
+    .segment-text:nth-child(1) { transform: rotate(20deg) translate(100px) rotate(-20deg); }
+    .segment-text:nth-child(2) { transform: rotate(60deg) translate(100px) rotate(-60deg); }
+    .segment-text:nth-child(3) { transform: rotate(100deg) translate(100px) rotate(-100deg); }
+    .segment-text:nth-child(4) { transform: rotate(140deg) translate(100px) rotate(-140deg); }
+    .segment-text:nth-child(5) { transform: rotate(180deg) translate(100px) rotate(-180deg); }
+    .segment-text:nth-child(6) { transform: rotate(220deg) translate(100px) rotate(-220deg); }
+    .segment-text:nth-child(7) { transform: rotate(260deg) translate(100px) rotate(-260deg); }
+    .segment-text:nth-child(8) { transform: rotate(300deg) translate(100px) rotate(-300deg); }
+    .segment-text:nth-child(9) { transform: rotate(340deg) translate(100px) rotate(-340deg); }
 
     .pointer {
       position: absolute;
-      top: 0%;
+      top: -15px;
       left: 50%;
-      width: 20px;
-      height: 20px;
-      background: black;
-      transform: translate(-50%, -150%) rotate(180deg);
-      z-index: 5;
-      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 25px solid var(--dark);
+      z-index: 10;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     }
-    .spin {
-        
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      background: var(--darkYellow);
+
+    .spin-btn {
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
       color: var(--white);
       border: none;
-      border-radius: 5px;
-
-      display: flex;
-      font-size: 20px;
-      width: 140px;
-      padding: 5px 0;
-      text-align: center;
-      align-items: center;
-      justify-content: center;
-      border-radius: 20px;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 16px;
       cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+      margin-top: 1.5rem;
+      width: 160px;
     }
 
-    .spin:focus, .spin:hover{
-      background: var(--lightYellow);
+    .spin-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
     }
-    .spin:disabled {
-      background: #ccc;
+
+    .spin-btn:active {
+      transform: translateY(0);
+    }
+
+    .spin-btn:disabled {
+      background: var(--gray);
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .winning-animation {
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--success);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    @media (max-width: 480px) {
+      .game-container {
+        padding: 1.5rem;
+        margin: 10px;
+      }
+
+      .wheel-container {
+        width: 240px;
+        height: 240px;
+      }
+
+      .segment-text {
+        font-size: 12px;
+        transform-origin: center;
+      }
+
+      .segment-text:nth-child(1) { transform: rotate(20deg) translate(85px) rotate(-20deg); }
+      .segment-text:nth-child(2) { transform: rotate(60deg) translate(85px) rotate(-60deg); }
+      .segment-text:nth-child(3) { transform: rotate(100deg) translate(85px) rotate(-100deg); }
+      .segment-text:nth-child(4) { transform: rotate(140deg) translate(85px) rotate(-140deg); }
+      .segment-text:nth-child(5) { transform: rotate(180deg) translate(85px) rotate(-180deg); }
+      .segment-text:nth-child(6) { transform: rotate(220deg) translate(85px) rotate(-220deg); }
+      .segment-text:nth-child(7) { transform: rotate(260deg) translate(85px) rotate(-260deg); }
+      .segment-text:nth-child(8) { transform: rotate(300deg) translate(85px) rotate(-300deg); }
+      .segment-text:nth-child(9) { transform: rotate(340deg) translate(85px) rotate(-340deg); }
     }
   </style>
 </head>
 <body>
-  <div class="roullette">
-    <h3>Hi <%= user.firstName %></h3>
-    <div class="data-container">
-      <div class="holder">
-        <div class="data" id="gems">💎: 0</div>
-        <div class="data click" onclick="handleNavigate('/dashboard')">ACCOUNT</div>
-      </div>
-      <div class="holder">
-        <div class="data" id="balance">💰: KSH <%= user.balance %></div>
-        <div class="data click" onclick="handleNavigate('/deposit')">WITHDRAW</div>
-      </div>
+  <div class="game-container">
+    <!-- User Header -->
+    <div class="user-header">
+      <div class="welcome-text">Welcome back, <span class="user-name"><%= user.firstName %></span>! 👋</div>
+      <div class="subtitle">Spin the wheel and win amazing rewards</div>
     </div>
-    <div class="wheel-container">
-      <div class="pointer"></div>
-      <div class="wheel">
-      <!-- Text for each segment -->
-      <div class="segment-text">x2.5</div>
-      <div class="segment-text">x1.5</div>
-      <div class="segment-text">x0.25</div>
-      <div class="segment-text">x5.5</div>
-      <div class="segment-text">x0.75</div>
-      <div class="segment-text">x1</div>
-      <div class="segment-text">x2</div>
-      <div class="segment-text">x3.5</div>
-      <div class="segment-text">x0.5</div>
-      </div>
 
+    <!-- Stats Container -->
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-icon">💎</div>
+        <div class="stat-value" id="gems">0</div>
+        <div class="stat-label">Total Gems</div>
+        <button class="action-btn" onclick="handleNavigate('/dashboard')">Account</button>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value" id="balance">KSH <%= user.balance %></div>
+        <div class="stat-label">Balance</div>
+        <button class="action-btn" onclick="handleNavigate('/deposit')">Withdraw</button>
+      </div>
     </div>
-    <button class="spin">SPIN</button>
+
+    <!-- Wheel Section -->
+    <div class="wheel-section">
+      <div class="wheel-title">Spin to Win! 🎯</div>
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <div class="wheel" id="wheel">
+          <!-- Wheel segments -->
+          <div class="segment-text">x2.5</div>
+          <div class="segment-text">x1.5</div>
+          <div class="segment-text">x0.25</div>
+          <div class="segment-text">x5.5</div>
+          <div class="segment-text">x0.75</div>
+          <div class="segment-text">x1</div>
+          <div class="segment-text">x2</div>
+          <div class="segment-text">x3.5</div>
+          <div class="segment-text">x0.5</div>
+        </div>
+      </div>
+      <button class="spin-btn" id="spinBtn">SPIN 🎮</button>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div class="notification" id="notification">
+    Congratulations! You won the spin! 🎉
   </div>
 
   <script>
-    const spinButton = document.querySelector('.spin');
-    const wheel = document.querySelector('.wheel');
-    const balanceDiv = document.querySelector('#balance');
-    let balance = 0;
+    const spinBtn = document.getElementById('spinBtn');
+    const wheel = document.getElementById('wheel');
+    const balanceDiv = document.getElementById('balance');
+    const gemsDiv = document.getElementById('gems');
+    const notification = document.getElementById('notification');
+
+    const segments = ['x1.5', 'x2.5', 'x0.25', 'x5.5', 'x0.75', 'x1', 'x2', 'x3.5', 'x0.5'];
+    let isSpinning = false;
+    let balance = <%= user.balance %>;
     let gems = 0;
 
-    const segments = [
-      'x1.5', 'x2.5', 'x0.25', 'x5.5', 
-      'x0.75', 'x1', 'x2', 'x3.5', 'x0.5'
-    ];
-    let isSpinning = false;
+    spinBtn.addEventListener('click', () => {
+      if (isSpinning) return;
 
-    spinButton.addEventListener('click', () => {
-  if (isSpinning) return;
+      isSpinning = true;
+      spinBtn.disabled = true;
 
-  isSpinning = true;
-  const prizeIndex = Math.floor(Math.random() * segments.length);
-  //const spinDegree = 3600 + prizeIndex * (360 / segments.length);
-  const spinDegree = 3600 + prizeIndex * 3 * (360 / segments.length);
+      const prizeIndex = Math.floor(Math.random() * segments.length);
+      const spinDegree = 3600 + prizeIndex * (360 / segments.length);
 
-  wheel.style.transform = `rotate(${spinDegree}deg)`; // Spin
-  spinButton.disabled = true;
+      // Reset wheel position for multiple spins
+      wheel.style.transition = 'none';
+      wheel.style.transform = 'rotate(0deg)';
+      
+      // Force reflow
+      void wheel.offsetWidth;
+      
+      // Start spin with smooth transition
+      wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+      wheel.style.transform = `rotate(${spinDegree}deg)`;
 
-  setTimeout(() => {
-    const prize = parseFloat(segments[prizeIndex].replace('x', '')); // Extract prize
-    balance += prize * 10; // Update balance
-    isSpinning = false;
-    spinButton.disabled = false;
+      setTimeout(() => {
+        const prize = parseFloat(segments[prizeIndex].replace('x', ''));
+        const winnings = prize * 10;
+        
+        balance += winnings;
+        gems += Math.floor(winnings / 5);
 
-    // Update balance on server
-    fetch("/users", {
-      method: "PUT",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ balance })
-    })
-    .then(response => response.json())
-    .then(data => {
-      balanceDiv.textContent = `💰: KSH ${data.balance}`;
-      balance = 0; // Reset after server update
-    })
-    .catch(error => console.error('Error:', error));
-  }, 5000); // Wait for spin to complete (5s)
-});
+        // Update UI
+        balanceDiv.textContent = `KSH ${balance}`;
+        gemsDiv.textContent = gems;
+        
+        // Show winning animation
+        wheel.classList.add('winning-animation');
+        setTimeout(() => wheel.classList.remove('winning-animation'), 500);
 
-    const handleNavigate  = (url) => {
-      window.location.pathname = url
+        // Show notification
+        showNotification(`You won ${winnings} KSH! 🎉`);
+
+        // Update server
+        updateServerBalance(balance);
+
+        isSpinning = false;
+        spinBtn.disabled = false;
+      }, 4200);
+    });
+
+    function updateServerBalance(newBalance) {
+      fetch("/users", {
+        method: "PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ balance: newBalance })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Balance updated successfully');
+      })
+      .catch(error => console.error('Error updating balance:', error));
     }
+
+    function showNotification(message) {
+      notification.textContent = message;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function handleNavigate(url) {
+      window.location.pathname = url;
+    }
+
+    // Add some interactive effects
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add hover effects to cards
+      const cards = document.querySelectorAll('.stat-card');
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-4px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0)';
+        });
+      });
+    });
   </script>
 </body>
 </html>
