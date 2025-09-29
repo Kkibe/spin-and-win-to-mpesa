@@ -254,11 +254,6 @@
     </style>
 </head>
 <body>
-    <% if (error) { %>
-        <div class="message message-error">
-          <%= error %>
-        </div>
-      <% } %>
     <div class="auth-container">
         <!-- Header -->
         <div class="header">
@@ -266,7 +261,11 @@
             <div class="title">Create Account</div>
             <div class="subtitle">Join and start winning today</div>
         </div>
-
+        <% if (error) { %>
+            <div class="message message-error">
+                <%= error %>
+            </div>
+        <% } %>
         <!-- Form -->
         <form id="form" class="form" action="/auth/register" method="post">
             <div class="form-row">
