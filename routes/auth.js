@@ -6,16 +6,9 @@ const SESSION_DURATION = 12 * 60 * 60; // 12 hours in seconds
 
 // Logout route
 router.get('/logout', (req, res) => {
-    delete req.app.locals.user;
-    /*req.session.destroy(() => {
+    req.session.destroy(() => {
         res.redirect('/login');
-    });*/
-    const referer = req.get('Referer'); // Get the previous page URL from the header
-    if (referer) {
-        return res.redirect(referer); // Redirect to the previous page
-    } else {
-        return res.redirect('/login'); // Fallback if no referer is present
-    }
+    });
 });
 
 //REGISTER
@@ -41,32 +34,27 @@ router.post("/register", async (req, res) => {
 
         const accessToken = jwt.sign({ 
             id: user._id, idAdmin: user.isAdmin,
-        }, process.env.JWT_SECRET, {expiresIn: SESSION_DURATION});//{ expiresIn: process.env.SESSION_DURATION || "1h" }
-        /**/
+        }, process.env.JWT_SECRET, {expiresIn: SESSION_DURATION});
+
         const { password, ...others } = user._doc;
-        currentUser = {...others, accessToken}
+        
+        // Store user in session instead of app.locals
+        req.session.user = {...others, accessToken};
 
+        req.session.message = {
+            type: "success",
+            message: "User registered successfully"
+        }
 
-        if(user !== null) {
-            req.session.message = {
-                type: "success",
-                message: "User added successfully"
-            }
-            req.app.locals.user = currentUser;
+        return res.redirect('/dashboard');
 
-            return res.redirect('/dashboard');
-
-        } else {
-            res.render('register', {message: err.message, type: 'danger'});
-        } 
     } catch (err) {
         res.render('register', {message: err.message, type: 'danger'});
     }
 });
 
-
-  //LOGIN
-  router.post("/login", async (req, res) => {
+//LOGIN
+router.post("/login", async (req, res) => {
     try {
         const user = await User.findOne({ email: req.body.email});
         if (!user) {
@@ -80,19 +68,22 @@ router.post("/register", async (req, res) => {
 
         const accessToken = jwt.sign({
             id: user._id, idAdmin: user.isAdmin,
-        }, process.env.JWT_SECRET, {expiresIn: SESSION_DURATION});//{ expiresIn: process.env.SESSION_DURATION || "1h" }
-        /**/
+        }, process.env.JWT_SECRET, {expiresIn: SESSION_DURATION});
+
         const { password, ...others } = user._doc;
         
+        // Store user in session instead of app.locals
+        req.session.user = {...others, accessToken};
+
         req.session.message = {
             type: "success",
-            message: "User added successfully"
+            message: "Login successful"
         }
-        currentUser = {...others, accessToken}
-        req.app.locals.user = currentUser;
+        
         return res.redirect('/');
     } catch (err) {
         res.render('login', {message: err.message, type: 'danger'});
     }
 });
+
 module.exports = router;
