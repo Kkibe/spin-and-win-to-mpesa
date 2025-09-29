@@ -2,6 +2,14 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 
+// Authentication middleware
+const requireAuth = (req, res, next) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: "Not authenticated" });
+    }
+    next();
+};
+
 const getDarajaAccessToken = async () => {
     const response = await fetch("https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials", {
         method: "GET",
@@ -14,7 +22,7 @@ const getDarajaAccessToken = async () => {
     return data.access_token;
 };
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
     let { amount, number } = req.body;
 
     if (number.startsWith("0")) {
@@ -56,34 +64,28 @@ router.post("/", async (req, res) => {
         // If payment is successful, activate user
         if (result.ResponseCode === "0") {
             // Activate user and add spins
-            await User.findByIdAndUpdate(
-                req.app.locals.user._id,
+            const updatedUser = await User.findByIdAndUpdate(
+                req.session.user._id,
                 {
                     $set: {
                         isActivated: true,
-                        spins: req.app.locals.user.spins + 50 // Add 50 spins on activation
+                        spins: req.session.user.spins + 50 // Add 50 spins on activation
                     }
-                }
+                },
+                { new: true }
             );
             
-            // Update local user data
-            req.app.locals.user.isActivated = true;
-            req.app.locals.user.spins += 50;
+            // Update session user data
+            req.session.user.isActivated = updatedUser.isActivated;
+            req.session.user.spins = updatedUser.spins;
         }
         
-        req.app.locals.result = result;
+        req.session.result = result;
         res.redirect("/deposit");
 
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
-});
-
-// Callback route for M-Pesa (you need to set this up)
-router.post("/callback", async (req, res) => {
-    // Handle M-Pesa callback here
-    // This is where you'd verify the payment and activate the user
-    res.status(200).json({ResultCode: 0, ResultDesc: "Success"});
 });
 
 module.exports = router;
