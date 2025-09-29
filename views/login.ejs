@@ -177,11 +177,6 @@
     </style>
 </head>
 <body>
-    <% if (error) { %>
-        <div class="message message-error">
-          <%= error %>
-        </div>
-      <% } %>
     <div class="auth-container">
         <!-- Header -->
         <div class="header">
@@ -189,7 +184,11 @@
             <div class="title">Welcome Back</div>
             <div class="subtitle">Sign in to your account</div>
         </div>
-
+        <% if (error) { %>
+            <div class="message message-error">
+                <%= error %>
+            </div>
+        <% } %>
         <!-- Form -->
         <form class="form" action="/auth/login" method="post">
             <div class="form-group">
