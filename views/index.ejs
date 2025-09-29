@@ -338,17 +338,10 @@
         <div class="action-icon">🎮</div>
         <div class="action-text">Spin Now</div>
       </a>
-      <% if (!user.isActivated) { %>
-        <a href="/deposit" class="action-btn">
-          <div class="action-icon">💳</div>
-          <div class="action-text">Activate</div>
-        </a>
-      <% } else { %>
-        <a href="/deposit" class="action-btn">
-          <div class="action-icon">💰</div>
-          <div class="action-text">Withdraw</div>
-        </a>
-      <% } %>
+      <a href="/deposit" class="action-btn">
+        <div class="action-icon">💳</div>
+        <div class="action-text">Activate</div>
+      </a>
     </div>
 
     <!-- User Information -->
@@ -371,10 +364,8 @@
           <div class="info-value"><%= user.firstName %></div>
         </div>
         <div class="info-item">
-          <div class="info-label">Account Status</div>
-          <div class="info-value" style="color: <%= user.isActivated ? 'var(--success)' : 'var(--error)' %>; font-weight: 600;">
-            <%= user.isActivated ? 'ACTIVATED ✅' : 'INACTIVE ❌' %>
-          </div>
+          <div class="info-label">Last Name</div>
+          <div class="info-value"><%= user.lastName %></div>
         </div>
       </div>
     </div>
@@ -420,13 +411,12 @@
       }, 4000);
     }
 
-    // Update stats from server data (optional real-time updates)
+    // Update stats from server data
     function updateStats() {
-      // You can implement real-time updates here if needed
-      // For now, we're using the server-rendered values
+      // Real-time updates can be implemented here if needed
     }
 
-    // Check for updates every 5 seconds (optional)
+    // Check for updates every 5 seconds
     setInterval(updateStats, 5000);
 
     // Add click effects
@@ -460,16 +450,6 @@
           setTimeout(() => ripple.remove(), 600);
         });
       });
-
-      // Show activation status message
-      <% if (!user.isActivated) { %>
-        setTimeout(() => {
-          if (!localStorage.getItem('activationReminderShown')) {
-            alert('Activate your account to get 50 bonus spins and unlock withdrawals!');
-            localStorage.setItem('activationReminderShown', 'true');
-          }
-        }, 1000);
-      <% } %>
     });
 
     // Add ripple animation
