@@ -96,9 +96,9 @@ app.get('/deposit', requireAuth, (req, res) => {
     console.log('Rendering deposit for user:', req.session.user.email);
     // Clear result from session after using it
     const message = req.session.message || null;
-    /*if (req.session.result) {
+    if (req.session.result) {
         delete req.session.result;
-    }*/
+    }
     res.render('deposit', {
         user: req.session.user,
         result,
