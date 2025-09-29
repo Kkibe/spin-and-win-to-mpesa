@@ -322,11 +322,11 @@
       <div class="balance-amount" id="balance">KSH <%= user.balance %></div>
       <div class="stats-row">
         <div class="stat-item">
-          <div class="stat-value" id="gems">0</div>
+          <div class="stat-value" id="gems"><%= user.gems || 0 %></div>
           <div class="stat-label">Gems</div>
         </div>
         <div class="stat-item">
-          <div class="stat-value" id="spins">0</div>
+          <div class="stat-value" id="spins"><%= user.spins || 10 %></div>
           <div class="stat-label">Spins</div>
         </div>
       </div>
@@ -338,10 +338,17 @@
         <div class="action-icon">🎮</div>
         <div class="action-text">Spin Now</div>
       </a>
-      <a href="/deposit" class="action-btn">
-        <div class="action-icon">💳</div>
-        <div class="action-text">Activate</div>
-      </a>
+      <% if (!user.isActivated) { %>
+        <a href="/deposit" class="action-btn">
+          <div class="action-icon">💳</div>
+          <div class="action-text">Activate</div>
+        </a>
+      <% } else { %>
+        <a href="/deposit" class="action-btn">
+          <div class="action-icon">💰</div>
+          <div class="action-text">Withdraw</div>
+        </a>
+      <% } %>
     </div>
 
     <!-- User Information -->
@@ -364,8 +371,10 @@
           <div class="info-value"><%= user.firstName %></div>
         </div>
         <div class="info-item">
-          <div class="info-label">Last Name</div>
-          <div class="info-value"><%= user.lastName %></div>
+          <div class="info-label">Account Status</div>
+          <div class="info-value" style="color: <%= user.isActivated ? 'var(--success)' : 'var(--error)' %>; font-weight: 600;">
+            <%= user.isActivated ? 'ACTIVATED ✅' : 'INACTIVE ❌' %>
+          </div>
         </div>
       </div>
     </div>
@@ -384,10 +393,10 @@
   </div>
 
   <script>
-    // Initialize dashboard data
-    let balance = parseFloat(localStorage.getItem('balance')) || <%= user.balance %>;
-    let gems = parseInt(localStorage.getItem('gems')) || 0;
-    let spins = parseInt(localStorage.getItem('spins')) || 0;
+    // Initialize dashboard data with server values
+    let balance = <%= user.balance %>;
+    let gems = <%= user.gems || 0 %>;
+    let spins = <%= user.spins || 10 %>;
 
     const balanceDiv = document.querySelector('#balance');
     const gemsDiv = document.querySelector('#gems');
@@ -411,25 +420,14 @@
       }, 4000);
     }
 
-    // Update stats from localStorage
+    // Update stats from server data (optional real-time updates)
     function updateStats() {
-      const savedBalance = localStorage.getItem('balance');
-      const savedGems = localStorage.getItem('gems');
-      const savedSpins = localStorage.getItem('spins');
-      
-      if (savedBalance) {
-        balanceDiv.textContent = `KSH ${savedBalance}`;
-      }
-      if (savedGems) {
-        gemsDiv.textContent = savedGems;
-      }
-      if (savedSpins) {
-        spinsDiv.textContent = savedSpins;
-      }
+      // You can implement real-time updates here if needed
+      // For now, we're using the server-rendered values
     }
 
-    // Check for updates every 2 seconds
-    setInterval(updateStats, 2000);
+    // Check for updates every 5 seconds (optional)
+    setInterval(updateStats, 5000);
 
     // Add click effects
     document.addEventListener('DOMContentLoaded', function() {
@@ -462,6 +460,16 @@
           setTimeout(() => ripple.remove(), 600);
         });
       });
+
+      // Show activation status message
+      <% if (!user.isActivated) { %>
+        setTimeout(() => {
+          if (!localStorage.getItem('activationReminderShown')) {
+            alert('Activate your account to get 50 bonus spins and unlock withdrawals!');
+            localStorage.setItem('activationReminderShown', 'true');
+          }
+        }, 1000);
+      <% } %>
     });
 
     // Add ripple animation
