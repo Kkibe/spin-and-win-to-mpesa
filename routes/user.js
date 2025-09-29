@@ -4,51 +4,48 @@ const bcrypt = require("bcryptjs");
 
 router.put("/", async (req, res) => {
   try {
-    // Ensure only the balance field is updated
     const updatedUser = await User.findByIdAndUpdate(
-      req.app.locals.user._id,  // Use the user ID from the app locals
+      req.app.locals.user._id,
       {
         $set: {
-          balance: req.app.locals.user.balance + req.body.balance // Only update the balance field
+          balance: req.body.balance,
+          gems: req.body.gems,
+          spins: req.body.spins,
+          totalSpins: req.body.totalSpins
         },
       },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
-    req.app.locals.user = updatedUser
+    req.app.locals.user = updatedUser;
     res.status(200).json(updatedUser);
-    return req.app.locals.user = updatedUser
   } catch (err) {
-    return;
+    res.status(500).json(err);
   }
 });
 
-
-//UPDATE
-/*router.put("/:id", async (req, res) => {
-  if (req.body.userId === req.params.id) {
-    if (req.body.password) {
-      const salt = await bcrypt.genSalt(10);
-      req.body.password = await bcrypt.hash(req.body.password, salt);
-    }
-    try {
-      const updatedUser = await User.findByIdAndUpdate(
-        req.params.id,
-        {
-          $set: req.body,
+// Activate user route
+router.put("/activate", async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.app.locals.user._id,
+      {
+        $set: {
+          isActivated: true,
+          spins: req.app.locals.user.spins + 50 // Give 50 spins on activation
         },
-        { new: true }
-      );
-      res.status(200).json(updatedUser);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  } else {
-    res.status(401).json("You can update only your account!");
-  }
-});*/
+      },
+      { new: true }
+    );
 
-//DELETE
+    req.app.locals.user = updatedUser;
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Other routes remain the same...
 router.delete("/:id", async (req, res) => {
   if (req.body.userId === req.params.id) {
     try {
@@ -67,7 +64,6 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-//GET USER
 router.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -86,6 +82,5 @@ router.get("/", async (req, res) => {
     res.status(500).json(err);
   }
 });
-
 
 module.exports = router;
