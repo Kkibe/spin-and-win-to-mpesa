@@ -367,6 +367,12 @@
           <div class="info-label">Last Name</div>
           <div class="info-value"><%= user.lastName %></div>
         </div>
+        <div class="info-item">
+          <div class="info-label">Account Status</div>
+          <div class="info-value" style="color: <%= user.isActivated ? 'var(--success)' : 'var(--error)' %>; font-weight: 600;">
+            <%= user.isActivated ? 'ACTIVATED ✅' : 'INACTIVE ❌' %>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -414,6 +420,7 @@
     // Update stats from server data
     function updateStats() {
       // Real-time updates can be implemented here if needed
+      // For now, we're using the server-rendered values
     }
 
     // Check for updates every 5 seconds
