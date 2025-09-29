@@ -21,8 +21,7 @@
       --error: #ef4444;
       --white: #ffffff;
       --card-bg: rgba(255, 255, 255, 0.95);
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-      --border: 1px solid rgba(0, 0, 0, 0.05);
+      --shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.1);
     }
 
     * {
@@ -35,48 +34,52 @@
       font-family: 'Inter', sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
     }
 
     .dashboard-container {
-      max-width: 800px;
-      margin: 0 auto;
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     /* Header */
     .header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
-    .logo {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--white);
-      margin-bottom: 0.5rem;
+    .welcome {
+      font-size: 1.1rem;
+      color: var(--dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .user-name {
+      color: var(--primary);
+      font-weight: 600;
     }
 
     .subtitle {
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 1rem;
-    }
-
-    /* Main Content */
-    .main-content {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 2rem;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--gray);
+      font-size: 0.85rem;
     }
 
     /* Alert */
     .alert {
-      padding: 1rem 1.5rem;
+      padding: 0.75rem 1rem;
       border-radius: 12px;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
       font-weight: 500;
+      font-size: 0.85rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -89,29 +92,19 @@
       border: 1px solid #a7f3d0;
     }
 
-    .alert-error {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-    }
-
     .alert-close {
       background: none;
       border: none;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       cursor: pointer;
       color: inherit;
       opacity: 0.7;
     }
 
-    .alert-close:hover {
-      opacity: 1;
-    }
-
     @keyframes slideIn {
       from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-5px);
       }
       to {
         opacity: 1;
@@ -119,13 +112,13 @@
       }
     }
 
-    /* Balance Section */
-    .balance-section {
+    /* Balance Card */
+    .balance-card {
       background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      border-radius: 20px;
-      padding: 2rem;
+      border-radius: 16px;
+      padding: 1.5rem;
       color: var(--white);
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       box-shadow: var(--shadow);
     }
 
@@ -133,223 +126,174 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
 
     .balance-title {
-      font-size: 1rem;
+      font-size: 0.9rem;
       opacity: 0.9;
     }
 
     .balance-amount {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 700;
+      text-align: center;
       margin-bottom: 0.5rem;
     }
 
-    .balance-subtitle {
-      opacity: 0.8;
-      font-size: 0.9rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+    .stats-row {
+      display: flex;
+      justify-content: space-around;
       gap: 1rem;
-      margin-top: 1rem;
     }
 
     .stat-item {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 1rem;
-      border-radius: 12px;
       text-align: center;
-      backdrop-filter: blur(10px);
-    }
-
-    .stat-icon {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
+      flex: 1;
     }
 
     .stat-value {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 600;
       margin-bottom: 0.25rem;
     }
 
     .stat-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       opacity: 0.8;
     }
 
-    /* Action Cards */
-    .action-cards {
+    /* Quick Actions */
+    .quick-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
-    .action-card {
+    .action-btn {
       background: var(--light);
-      border-radius: 16px;
-      padding: 1.5rem;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 14px;
+      padding: 1rem;
       text-align: center;
-      border: var(--border);
-      transition: all 0.3s ease;
       cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
     }
 
-    .action-card:hover {
-      transform: translateY(-4px);
+    .action-btn:hover {
+      transform: translateY(-2px);
       box-shadow: var(--shadow);
     }
 
     .action-icon {
-      width: 60px;
-      height: 60px;
+      width: 48px;
+      height: 48px;
       background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-      border-radius: 16px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 1rem;
-      font-size: 1.5rem;
-      color: var(--white);
-    }
-
-    .action-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--dark);
-      margin-bottom: 0.5rem;
-    }
-
-    .action-description {
-      font-size: 0.85rem;
-      color: var(--gray);
-      margin-bottom: 1rem;
-    }
-
-    .action-btn {
-      background: var(--primary);
-      color: var(--white);
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      width: 100%;
-    }
-
-    .action-btn:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-    }
-
-    /* User Info Section */
-    .user-info-section {
-      background: var(--light);
-      border-radius: 20px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .section-title {
+      margin: 0 auto 0.75rem;
       font-size: 1.25rem;
+      color: var(--white);
+    }
+
+    .action-text {
+      font-size: 0.9rem;
       font-weight: 600;
       color: var(--dark);
+    }
+
+    /* User Info */
+    .user-info {
+      background: var(--light);
+      border-radius: 16px;
+      padding: 1.25rem;
       margin-bottom: 1.5rem;
+    }
+
+    .info-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 1rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-    }
-
-    .section-title::before {
-      content: "👤";
-      font-size: 1.2rem;
     }
 
     .info-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
+      gap: 0.75rem;
     }
 
-    .info-group {
-      margin-bottom: 1rem;
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
     }
 
     .info-label {
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       color: var(--gray);
       font-weight: 500;
-      margin-bottom: 0.5rem;
-      display: block;
     }
 
     .info-value {
-      background: var(--white);
-      border: var(--border);
-      border-radius: 12px;
-      padding: 1rem;
-      font-size: 1rem;
+      font-size: 0.85rem;
       color: var(--dark);
-      width: 100%;
+      font-weight: 500;
+      padding: 0.5rem;
+      background: var(--white);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
-    /* Logout Section */
-    .logout-section {
-      text-align: center;
-      padding-top: 2rem;
-      border-top: var(--border);
+    /* Footer */
+    .footer {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .footer-btn {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .spin-btn {
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+      color: var(--white);
+    }
+
+    .spin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
     }
 
     .logout-btn {
       background: transparent;
       color: var(--error);
-      border: 2px solid var(--error);
-      padding: 0.75rem 2rem;
-      border-radius: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
+      border: 1.5px solid var(--error);
     }
 
     .logout-btn:hover {
       background: var(--error);
       color: var(--white);
-      transform: translateY(-2px);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .dashboard-container {
-        padding: 10px;
-      }
-
-      .main-content {
-        padding: 1.5rem;
-      }
-
-      .stats-grid,
-      .action-cards,
-      .info-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .balance-amount {
-        font-size: 2rem;
-      }
-
-      .action-card {
-        padding: 1rem;
-      }
     }
   </style>
 </head>
@@ -358,89 +302,84 @@
   <div class="dashboard-container">
     <!-- Header -->
     <div class="header">
-      <div class="logo">🎯 Spin & Win</div>
-      <div class="subtitle">Your M-Pesa Rewards Dashboard</div>
+      <div class="welcome">Welcome, <span class="user-name"><%= user.firstName %></span>! 👋</div>
+      <div class="subtitle">Spin & Win Dashboard</div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <!-- Alert Message -->
-      <% if (message) { %>
-        <div class="alert alert-<%= message.type === 'success' ? 'success' : 'error' %>">
-          <span><%= message.message %></span>
-          <button class="alert-close" onclick="this.parentElement.style.display='none'">×</button>
-        </div>
-      <% } %>
+    <!-- Alert Message -->
+    <% if (message) { %>
+      <div class="alert alert-success">
+        <span><%= message.message %></span>
+        <button class="alert-close" onclick="this.parentElement.style.display='none'">×</button>
+      </div>
+    <% } %>
 
-      <!-- Balance Section -->
-      <div class="balance-section">
-        <div class="balance-header">
-          <div class="balance-title">Total Balance</div>
-          <div class="balance-subtitle">Available for withdrawal</div>
+    <!-- Balance Card -->
+    <div class="balance-card">
+      <div class="balance-header">
+        <div class="balance-title">Available Balance</div>
+      </div>
+      <div class="balance-amount" id="balance">KSH <%= user.balance %></div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-value" id="gems">0</div>
+          <div class="stat-label">Gems</div>
         </div>
-        <div class="balance-amount" id="balance">KSH <%= user.balance %></div>
-        
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-icon">💎</div>
-            <div class="stat-value" id="gems">0</div>
-            <div class="stat-label">Total Gems</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-icon">🎯</div>
-            <div class="stat-value" id="spins">0</div>
-            <div class="stat-label">Spins Today</div>
-          </div>
+        <div class="stat-item">
+          <div class="stat-value" id="spins">0</div>
+          <div class="stat-label">Spins</div>
         </div>
       </div>
+    </div>
 
-      <!-- Action Cards -->
-      <div class="action-cards">
-        <div class="action-card" onclick="handleNavigate('/spin')">
-          <div class="action-icon">🎮</div>
-          <div class="action-title">Spin & Win</div>
-          <div class="action-description">Spin the wheel and win amazing M-Pesa rewards</div>
-          <button class="action-btn">Start Spinning</button>
-        </div>
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <a href="/spin" class="action-btn">
+        <div class="action-icon">🎮</div>
+        <div class="action-text">Spin Now</div>
+      </a>
+      <a href="/deposit" class="action-btn">
+        <div class="action-icon">💳</div>
+        <div class="action-text">Activate</div>
+      </a>
+    </div>
 
-        <div class="action-card" onclick="handleNavigate('/deposit')">
-          <div class="action-icon">💳</div>
-          <div class="action-title">Activate Account</div>
-          <div class="action-description">Deposit funds to activate your account and start winning</div>
-          <button class="action-btn">Activate Now</button>
-        </div>
+    <!-- User Information -->
+    <div class="user-info">
+      <div class="info-title">
+        <span>👤</span>
+        Profile Info
       </div>
-
-      <!-- User Information -->
-      <div class="user-info-section">
-        <div class="section-title">Profile Information</div>
-        <div class="info-grid">
-          <div class="info-group">
-            <label class="info-label">Phone Number</label>
-            <div class="info-value"><%= user.phone %></div>
-          </div>
-          <div class="info-group">
-            <label class="info-label">Email Address</label>
-            <div class="info-value"><%= user.email || 'Not provided' %></div>
-          </div>
-          <div class="info-group">
-            <label class="info-label">First Name</label>
-            <div class="info-value"><%= user.firstName %></div>
-          </div>
-          <div class="info-group">
-            <label class="info-label">Last Name</label>
-            <div class="info-value"><%= user.lastName %></div>
-          </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Phone</div>
+          <div class="info-value"><%= user.phone %></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Email</div>
+          <div class="info-value"><%= user.email || 'N/A' %></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">First Name</div>
+          <div class="info-value"><%= user.firstName %></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Last Name</div>
+          <div class="info-value"><%= user.lastName %></div>
         </div>
       </div>
+    </div>
 
-      <!-- Logout Section -->
-      <div class="logout-section">
-        <button class="logout-btn" onclick="handleNavigate('/logout')">
-          <span>🚪</span>
-          Sign Out
-        </button>
-      </div>
+    <!-- Footer Actions -->
+    <div class="footer">
+      <button class="footer-btn spin-btn" onclick="handleNavigate('/spin')">
+        <span>🎯</span>
+        Quick Spin
+      </button>
+      <button class="footer-btn logout-btn" onclick="handleNavigate('/logout')">
+        <span>🚪</span>
+        Sign Out
+      </button>
     </div>
   </div>
 
@@ -464,43 +403,19 @@
       window.location.pathname = url;
     }
 
-    // Add interactive effects
-    document.addEventListener('DOMContentLoaded', function() {
-      // Add hover effects to action cards
-      const actionCards = document.querySelectorAll('.action-card');
-      actionCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-          this.style.transform = 'translateY(-6px)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-          this.style.transform = 'translateY(-4px)';
-        });
-      });
+    // Auto-hide alert after 4 seconds
+    const alert = document.querySelector('.alert');
+    if (alert) {
+      setTimeout(() => {
+        alert.style.display = 'none';
+      }, 4000);
+    }
 
-      // Auto-hide alert after 5 seconds
-      const alert = document.querySelector('.alert');
-      if (alert) {
-        setTimeout(() => {
-          alert.style.display = 'none';
-        }, 5000);
-      }
-
-      // Add loading animation to buttons
-      const buttons = document.querySelectorAll('button');
-      buttons.forEach(button => {
-        button.addEventListener('click', function(e) {
-          if (this.classList.contains('action-btn') || this.classList.contains('logout-btn')) {
-            e.stopPropagation();
-          }
-        });
-      });
-    });
-
-    // Update stats from localStorage if available
+    // Update stats from localStorage
     function updateStats() {
       const savedBalance = localStorage.getItem('balance');
       const savedGems = localStorage.getItem('gems');
+      const savedSpins = localStorage.getItem('spins');
       
       if (savedBalance) {
         balanceDiv.textContent = `KSH ${savedBalance}`;
@@ -508,10 +423,58 @@
       if (savedGems) {
         gemsDiv.textContent = savedGems;
       }
+      if (savedSpins) {
+        spinsDiv.textContent = savedSpins;
+      }
     }
 
     // Check for updates every 2 seconds
     setInterval(updateStats, 2000);
+
+    // Add click effects
+    document.addEventListener('DOMContentLoaded', function() {
+      const buttons = document.querySelectorAll('.action-btn, .footer-btn');
+      buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          // Add ripple effect
+          const ripple = document.createElement('span');
+          const rect = this.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          const x = e.clientX - rect.left - size / 2;
+          const y = e.clientY - rect.top - size / 2;
+          
+          ripple.style.cssText = `
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            width: ${size}px;
+            height: ${size}px;
+            left: ${x}px;
+            top: ${y}px;
+          `;
+          
+          this.style.position = 'relative';
+          this.style.overflow = 'hidden';
+          this.appendChild(ripple);
+          
+          setTimeout(() => ripple.remove(), 600);
+        });
+      });
+    });
+
+    // Add ripple animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes ripple {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
   </script>
 </body>
 </html>
