@@ -18,14 +18,15 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: false,
-        maxAge: 24 * 60 * 60 * 1000,
+        secure: false, // Set to true if using HTTPS
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
         httpOnly: true
     }
 }));
 
-// Debug middleware - only for non-static files
+// Debug middleware - only for non-static files and important routes
 app.use((req, res, next) => {
+  // Skip static files and only log important routes
   if (req.url.startsWith('/css/') || 
       req.url.startsWith('/js/') || 
       req.url.startsWith('/images/') ||
@@ -45,16 +46,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Make user and message available in views - FIXED VERSION
+// Make user available in views - FIXED VERSION
 app.use((req, res, next) => {
+    // Properly handle undefined session user
     res.locals.user = req.session.user || null;
-    res.locals.message = req.session.message || null; // Ensure message is always defined
-    
-    // Clear the session message after setting it to locals
-    if (req.session.message) {
-        delete req.session.message;
-    }
-    
     next();
 });
 
@@ -85,13 +80,11 @@ const requireAuth = (req, res, next) => {
     next();
 };
 
-// Protected routes - FIXED: Pass message explicitly
+// Protected routes
 app.get('/dashboard', requireAuth, (req, res) => {
     console.log('Rendering dashboard for user:', req.session.user.email);
-    
     // Get message from session and pass it to the view
     const message = req.session.message || null;
-    
     res.render('dashboard', { 
         user: req.session.user,
         message: message // Explicitly pass message
@@ -101,25 +94,21 @@ app.get('/dashboard', requireAuth, (req, res) => {
 app.get('/deposit', requireAuth, (req, res) => {
     let result = req.session.result || null;
     console.log('Rendering deposit for user:', req.session.user.email);
-    
     // Clear result from session after using it
     const message = req.session.message || null;
-    if (req.session.result) {
+    /*if (req.session.result) {
         delete req.session.result;
-    }
-    
+    }*/
     res.render('deposit', {
         user: req.session.user,
-        result: result,
+        result,
         message: message
     });
 });
 
 app.get('/', requireAuth, (req, res) => {
     console.log('Rendering spin page for user:', req.session.user.email);
-    
     const message = req.session.message || null;
-    
     res.render('spin', {
         user: req.session.user,
         message: message
