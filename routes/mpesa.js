@@ -1,14 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
-
-// Authentication middleware
-const requireAuth = (req, res, next) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Not authenticated" });
-    }
-    next();
-};
+const { isAuthenticated } = require('../middleware/auth');
 
 const getDarajaAccessToken = async () => {
     const response = await fetch("https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials", {
@@ -22,7 +15,7 @@ const getDarajaAccessToken = async () => {
     return data.access_token;
 };
 
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", isAuthenticated, async (req, res) => {
     let { amount, number } = req.body;
 
     if (number.startsWith("0")) {
@@ -69,7 +62,7 @@ router.post("/", requireAuth, async (req, res) => {
                 {
                     $set: {
                         isActivated: true,
-                        spins: req.session.user.spins + 50 // Add 50 spins on activation
+                        spins: (req.session.user.spins || 0) + 50 // Add 50 spins on activation
                     }
                 },
                 { new: true }
@@ -84,7 +77,9 @@ router.post("/", requireAuth, async (req, res) => {
         res.redirect("/deposit");
 
     } catch (error) {
-        return res.status(500).json({ error: error.message });
+        console.error('Mpesa error:', error);
+        req.session.result = { errorMessage: "Payment processing failed. Please try again." };
+        res.redirect("/deposit");
     }
 });
 
