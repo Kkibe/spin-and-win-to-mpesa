@@ -16,18 +16,18 @@ dotenv.config();
 app.use(express.json()); // Parses JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parses URL-encoded bodies
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'my-session-secret-key',
+    secret: process.env.SESSION_SECRET || 'your-secret-key-here',
     resave: false,
-    saveUninitialized: false, // Changed to false for security
+    saveUninitialized: false,
     cookie: { 
-        secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
 
 // Middleware to make user available in views per session
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || null; // User is now per session
+    res.locals.user = req.session.user || null; // Use session user
     res.locals.message = req.session.message;
     delete req.session.message;
     next();
@@ -38,25 +38,24 @@ app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("", require("./routes/auth"));
 
-mongoose  
-    .connect(process.env.MONGODB_URL).then(() => {
-        console.log('MongoDB connected');
-    }).catch((error) => {
-        console.error('MongoDB connection error:', error);
-    });
+mongoose.connect(process.env.MONGODB_URL).then(() => {
+    console.log('MongoDB connected');
+}).catch((error) => {
+    console.error('MongoDB connection error:', error);
+});
 
 // Authentication middleware
 const requireAuth = (req, res, next) => {
-    if (!req.session.user) {
+    if (!req.session.user) { // Check session instead of app.locals
         return res.redirect('/login');
     }
     next();
 };
 
-// Protected routes
+// Protected routes - use session user
 app.get('/dashboard', requireAuth, (req, res) => {
     res.render('index', { 
-        user: req.session.user,
+        user: req.session.user, // Use session user
         message: {
             message: "Logged In",
             type: "success"
@@ -67,27 +66,27 @@ app.get('/dashboard', requireAuth, (req, res) => {
 app.get('/deposit', requireAuth, (req, res) => {
     let result = req.session.result || null;
     res.render('deposit', {
-        user: req.session.user, 
+        user: req.session.user, // Use session user
         result
     });
 });
 
 app.get('/', requireAuth, (req, res) => {
     res.render('spin', {
-        user: req.session.user
+        user: req.session.user // Use session user
     });
 });
 
-// Public routes
+// Public routes - check session instead of app.locals
 app.get('/login', (req, res) => {
-    if (req.session.user) {
+    if (req.session.user) { // Check session instead of app.locals
         return res.redirect('/');
     }
     res.render('login');
 }); 
 
 app.get('/register', (req, res) => {
-    if (req.session.user) {
+    if (req.session.user) { // Check session instead of app.locals
         return res.redirect('/');
     }
     res.render('register');
