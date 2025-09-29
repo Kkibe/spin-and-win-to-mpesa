@@ -37,6 +37,8 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
+      overflow: hidden;
+      position: relative;
     }
 
     .game-container {
@@ -48,6 +50,8 @@
       width: 100%;
       box-shadow: var(--shadow);
       border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      z-index: 10;
     }
 
     .user-header {
@@ -246,22 +250,109 @@
       100% { transform: scale(1); }
     }
 
-    .notification {
+    /* Celebration Animations */
+    .celebration {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--success);
-      color: var(--white);
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      transform: translateX(400px);
-      transition: transform 0.3s ease;
-      z-index: 1000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      display: none;
     }
 
-    .notification.show {
-      transform: translateX(0);
+    .confetti {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background: var(--secondary);
+      animation: fall linear forwards;
+    }
+
+    .confetti:nth-child(odd) {
+      background: var(--primary);
+    }
+
+    .confetti:nth-child(3n) {
+      background: var(--success);
+    }
+
+    .confetti:nth-child(5n) {
+      background: var(--accent, #ec4899);
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+      }
+    }
+
+    .firework {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: explode 1s ease-out forwards;
+    }
+
+    @keyframes explode {
+      0% {
+        transform: translate(var(--x), var(--y)) scale(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(1);
+        opacity: 0;
+      }
+    }
+
+    .win-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: white;
+      padding: 2rem 3rem;
+      border-radius: 20px;
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      z-index: 200;
+      display: none;
+      animation: popIn 0.5s ease-out 0.5s forwards;
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+      }
+      70% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .money-rain {
+      position: fixed;
+      top: -50px;
+      font-size: 2rem;
+      animation: moneyFall linear forwards;
+      z-index: 90;
+    }
+
+    @keyframes moneyFall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
     }
 
     @media (max-width: 480px) {
@@ -289,6 +380,11 @@
       .segment-text:nth-child(7) { transform: rotate(260deg) translate(85px) rotate(-260deg); }
       .segment-text:nth-child(8) { transform: rotate(300deg) translate(85px) rotate(-300deg); }
       .segment-text:nth-child(9) { transform: rotate(340deg) translate(85px) rotate(-340deg); }
+
+      .win-message {
+        font-size: 1.5rem;
+        padding: 1.5rem 2rem;
+      }
     }
   </style>
 </head>
@@ -338,17 +434,17 @@
     </div>
   </div>
 
-  <!-- Notification -->
-  <div class="notification" id="notification">
-    Congratulations! You won the spin! 🎉
-  </div>
+  <!-- Celebration Elements -->
+  <div class="celebration" id="celebration"></div>
+  <div class="win-message" id="winMessage"></div>
 
   <script>
     const spinBtn = document.getElementById('spinBtn');
     const wheel = document.getElementById('wheel');
     const balanceDiv = document.getElementById('balance');
     const gemsDiv = document.getElementById('gems');
-    const notification = document.getElementById('notification');
+    const celebration = document.getElementById('celebration');
+    const winMessage = document.getElementById('winMessage');
 
     const segments = ['x1.5', 'x2.5', 'x0.25', 'x5.5', 'x0.75', 'x1', 'x2', 'x3.5', 'x0.5'];
     let isSpinning = false;
@@ -390,8 +486,8 @@
         wheel.classList.add('winning-animation');
         setTimeout(() => wheel.classList.remove('winning-animation'), 500);
 
-        // Show notification
-        showNotification(`You won ${winnings} KSH! 🎉`);
+        // Show full-screen celebration
+        showCelebration(`You won ${winnings} KSH! 🎉`);
 
         // Update server
         updateServerBalance(balance);
@@ -400,6 +496,89 @@
         spinBtn.disabled = false;
       }, 4200);
     });
+
+    function showCelebration(message) {
+      // Show celebration container
+      celebration.style.display = 'block';
+      
+      // Create confetti
+      createConfetti();
+      
+      // Create fireworks
+      createFireworks();
+      
+      // Create money rain
+      createMoneyRain();
+      
+      // Show win message
+      winMessage.textContent = message;
+      winMessage.style.display = 'block';
+      
+      // Hide everything after 4 seconds
+      setTimeout(() => {
+        celebration.style.display = 'none';
+        winMessage.style.display = 'none';
+        celebration.innerHTML = '';
+      }, 4000);
+    }
+
+    function createConfetti() {
+      for (let i = 0; i < 150; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        confetti.style.animationDelay = (Math.random() * 2) + 's';
+        celebration.appendChild(confetti);
+      }
+    }
+
+    function createFireworks() {
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const firework = document.createElement('div');
+          firework.className = 'firework';
+          firework.style.left = Math.random() * 100 + 'vw';
+          firework.style.top = Math.random() * 100 + 'vh';
+          firework.style.background = getRandomColor();
+          
+          // Create explosion effect
+          for (let j = 0; j < 12; j++) {
+            const particle = document.createElement('div');
+            particle.className = 'firework';
+            particle.style.background = getRandomColor();
+            particle.style.setProperty('--x', '0px');
+            particle.style.setProperty('--y', '0px');
+            particle.style.setProperty('--tx', (Math.cos(j * 30 * Math.PI/180) * 50) + 'px');
+            particle.style.setProperty('--ty', (Math.sin(j * 30 * Math.PI/180) * 50) + 'px');
+            particle.style.left = firework.style.left;
+            particle.style.top = firework.style.top;
+            celebration.appendChild(particle);
+          }
+          
+          celebration.appendChild(firework);
+        }, i * 200);
+      }
+    }
+
+    function createMoneyRain() {
+      for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+          const money = document.createElement('div');
+          money.className = 'money-rain';
+          money.textContent = '💰';
+          money.style.left = Math.random() * 100 + 'vw';
+          money.style.animationDuration = (Math.random() * 3 + 2) + 's';
+          money.style.fontSize = (Math.random() * 20 + 20) + 'px';
+          celebration.appendChild(money);
+        }, i * 100);
+      }
+    }
+
+    function getRandomColor() {
+      const colors = ['#6366f1', '#f59e0b', '#10b981', '#ec4899', '#8b5cf6'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
 
     function updateServerBalance(newBalance) {
       fetch("/users", {
@@ -412,15 +591,6 @@
         console.log('Balance updated successfully');
       })
       .catch(error => console.error('Error updating balance:', error));
-    }
-
-    function showNotification(message) {
-      notification.textContent = message;
-      notification.classList.add('show');
-      
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 3000);
     }
 
     function handleNavigate(url) {
