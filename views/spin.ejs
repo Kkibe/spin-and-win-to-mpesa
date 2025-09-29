@@ -9,7 +9,6 @@
   <title>Spin & Earn To Mpesa</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ALL YOUR EXISTING CSS REMAINS EXACTLY THE SAME */
     :root {
       --primary: #6366f1;
       --primary-dark: #4f46e5;
@@ -136,7 +135,7 @@
 
     .wheel-section {
       text-align: center;
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
     }
 
     .wheel-title {
@@ -241,7 +240,7 @@
       box-shadow: none;
     }
 
-    /* NEW: Spins counter */
+    /* NEW: Spins Counter */
     .spins-counter {
       text-align: center;
       margin-top: 1rem;
@@ -269,7 +268,7 @@
       100% { transform: scale(1); }
     }
 
-    /* Celebration Animations (all your existing celebration CSS remains) */
+    /* Celebration Animations */
     .celebration {
       position: fixed;
       top: 0;
@@ -476,7 +475,6 @@
     let balance = <%= user.balance %>;
     let gems = <%= user.gems || 0 %>;
     let spins = <%= user.spins || 10 %>;
-    let totalSpins = <%= user.totalSpins || 0 %>;
 
     spinBtn.addEventListener('click', () => {
       if (isSpinning) return;
@@ -504,16 +502,11 @@
 
       setTimeout(() => {
         const prize = parseFloat(segments[prizeIndex].replace('x', ''));
+        const winnings = prize * 10;
         
-        // PROGRESSIVE SYSTEM: Base amount increases with gems
-        const baseAmount = 10 + (Math.floor(gems / 10) * 5); // +5 KSH every 10 gems
-        const winnings = prize * baseAmount;
-        
-        // Update user stats
         balance += winnings;
-        gems += Math.floor(winnings / 2); // 1 gem per 2 KSH
-        spins -= 1; // Decrease spins count
-        totalSpins += 1;
+        gems += Math.floor(winnings / 5);
+        spins -= 1;
 
         // Update UI
         balanceDiv.textContent = `KSH ${balance}`;
@@ -524,18 +517,11 @@
         wheel.classList.add('winning-animation');
         setTimeout(() => wheel.classList.remove('winning-animation'), 500);
 
-        // Show full-screen celebration for wins over 50 KSH
-        if (winnings >= 50) {
-          showCelebration(`You won ${winnings} KSH! 🎉`);
-        } else {
-          // Small notification for smaller wins
-          setTimeout(() => {
-            alert(`You won ${winnings} KSH!`);
-          }, 500);
-        }
+        // Show full-screen celebration
+        showCelebration(`You won ${winnings} KSH! 🎉`);
 
-        // Update server with all user data
-        updateServerData(balance, gems, spins, totalSpins);
+        // Update server
+        updateServerData(balance, gems, spins);
 
         isSpinning = false;
         spinBtn.disabled = false;
@@ -632,15 +618,14 @@
       return colors[Math.floor(Math.random() * colors.length)];
     }
 
-    function updateServerData(newBalance, newGems, newSpins, newTotalSpins) {
+    function updateServerData(newBalance, newGems, newSpins) {
       fetch("/users", {
         method: "PUT",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           balance: newBalance,
           gems: newGems,
-          spins: newSpins,
-          totalSpins: newTotalSpins
+          spins: newSpins
         })
       })
       .then(response => response.json())
