@@ -1,33 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<link rel="shortcut icon" href="login.jpg" type="image/png">
-	<link rel="apple-touch-icon" href="login.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="login.jpg" type="image/png">
+    <link rel="apple-touch-icon" href="login.jpg">
     <title>Login | Spin & Earn To Mpesa</title>
-    <link rel="stylesheet" href="auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --secondary-dark: #d97706;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --gray: #6b7280;
+            --white: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-input {
+            padding: 1rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .footer-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-dark);
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-	<main class="form_wrapper">
-		<section class="form_container">
-			<div class="title_container">
-				<h2>Welcome Back</h2>
-			</div>
-			<form class="form" action="/login" method="post">
-				<div class="input_field">
-					<label for="email">Email</label>
-					<input type="email" name="email" id="email" placeholder="Email" required />
-				</div>
-				<div class="input_field">
-					<label for="password">Password</label>
-					<input type="password" name="password" id="password" placeholder="Password" required />
-				</div>
-				<input class="button" type="submit" value="Login" />
-			</form>
-			<p class="credit">Don't have an account? <a href="/register">Get Started</a></p>
-		</section>
-	</main>
+    <div class="auth-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">🎯 Spin & Win</div>
+            <div class="title">Welcome Back</div>
+            <div class="subtitle">Sign in to your account</div>
+        </div>
+
+        <!-- Form -->
+        <form class="form" action="/login" method="post">
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    id="email" 
+                    class="form-input"
+                    placeholder="Enter your email" 
+                    required 
+                />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input 
+                    type="password" 
+                    name="password" 
+                    id="password" 
+                    class="form-input"
+                    placeholder="Enter your password" 
+                    required 
+                />
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                Don't have an account? 
+                <a href="/register" class="footer-link">Get Started</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('.form').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Signing In...';
+        });
+    </script>
 </body>
 </html>
