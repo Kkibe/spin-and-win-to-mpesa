@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const User = require("../models/User");
 
 const getDarajaAccessToken = async () => {
     const response = await fetch("https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials", {
@@ -14,21 +14,17 @@ const getDarajaAccessToken = async () => {
     return data.access_token;
 };
 
-
 router.post("/", async (req, res) => {
     let { amount, number } = req.body;
 
     if (number.startsWith("0")) {
         number = "254" + number.slice(1);
     } else if(number.startsWith('+')) {
-        number = number.substring(1); // Start from index 1 to exclude +
+        number = number.substring(1);
     }
 
     try {
-        // Step 1: Get the access token
         const accessToken = await getDarajaAccessToken();
-
-        // Step 2: Prepare STK Push request
         const timestamp = new Date().toISOString().replace(/[-:T.]/g, "").slice(0, 14);
         const password = Buffer.from(`${process.env.DARAJA_SHORT_CODE}${process.env.DARAJA_PASSKEY}${timestamp}`).toString("base64");
 
@@ -38,15 +34,14 @@ router.post("/", async (req, res) => {
             Timestamp: timestamp,
             TransactionType: "CustomerPayBillOnline",
             Amount: amount,
-            PartyA: number, // The phone number sending payment
+            PartyA: number,
             PartyB: process.env.DARAJA_SHORT_CODE,
-            PhoneNumber: number, // The phone number to receive the STK Push
-            CallBackURL: "https://powerkingtips.com",
-            AccountReference: "YOUR_REFERENCE", // A reference for the transaction
-            TransactionDesc: "Payment for services"
+            PhoneNumber: number,
+            CallBackURL: "https://your-callback-url.com/callback", // Update this
+            AccountReference: "ACCOUNT_ACTIVATION",
+            TransactionDesc: "Account Activation"
         };
 
-        // Step 3: Make the STK Push request
         const stkPushResponse = await fetch("https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest", {
             method: "POST",
             headers: {
@@ -57,12 +52,38 @@ router.post("/", async (req, res) => {
         });
 
         const result = await stkPushResponse.json();
+        
+        // If payment is successful, activate user
+        if (result.ResponseCode === "0") {
+            // Activate user and add spins
+            await User.findByIdAndUpdate(
+                req.app.locals.user._id,
+                {
+                    $set: {
+                        isActivated: true,
+                        spins: req.app.locals.user.spins + 50 // Add 50 spins on activation
+                    }
+                }
+            );
+            
+            // Update local user data
+            req.app.locals.user.isActivated = true;
+            req.app.locals.user.spins += 50;
+        }
+        
         req.app.locals.result = result;
-        res.redirect("/deposit")
+        res.redirect("/deposit");
 
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
+});
+
+// Callback route for M-Pesa (you need to set this up)
+router.post("/callback", async (req, res) => {
+    // Handle M-Pesa callback here
+    // This is where you'd verify the payment and activate the user
+    res.status(200).json({ResultCode: 0, ResultDesc: "Success"});
 });
 
 module.exports = router;
