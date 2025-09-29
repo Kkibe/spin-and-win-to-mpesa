@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const cors = require('cors');
+const cors = require('cors'); 
 const session = require('express-session');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
@@ -17,7 +17,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'your-super-secret-key-change-in-production',
     resave: false,
     saveUninitialized: false,
-    cookie: {
+    cookie: { 
         secure: false,
         maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true
@@ -26,15 +26,22 @@ app.use(session({
 
 // Debug middleware - only for non-static files
 app.use((req, res, next) => {
-  if (req.url.startsWith('/css/') ||
-      req.url.startsWith('/js/') ||
+  if (req.url.startsWith('/css/') || 
+      req.url.startsWith('/js/') || 
       req.url.startsWith('/images/') ||
-      req.url.endsWith('.css') ||
+      req.url.endsWith('.css') || 
       req.url.endsWith('.js') ||
       req.url.endsWith('.jpg') ||
       req.url.endsWith('.png')) {
     return next();
   }
+  
+  console.log('=== SESSION DEBUG ===');
+  console.log('URL:', req.url);
+  console.log('Method:', req.method);
+  console.log('Session ID:', req.sessionID);
+  console.log('Session User:', req.session.user);
+  console.log('=====================');
   next();
 });
 
@@ -42,12 +49,12 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.message = req.session.message || null; // Ensure message is always defined
-
+    
     // Clear the session message after setting it to locals
     if (req.session.message) {
         delete req.session.message;
     }
-
+    
     next();
 });
 
@@ -59,9 +66,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URL).then(() => {
-
+    console.log('MongoDB connected');
 }).catch((error) => {
-
+    console.error('MongoDB connection error:', error);
 });
 
 // Routes
@@ -72,6 +79,7 @@ app.use("/mpesa", mpesaRoute);
 // Authentication middleware
 const requireAuth = (req, res, next) => {
     if (!req.session.user) {
+        console.log('Auth required - redirecting to login');
         return res.redirect('/login');
     }
     next();
@@ -79,10 +87,12 @@ const requireAuth = (req, res, next) => {
 
 // Protected routes - FIXED: Pass message explicitly
 app.get('/dashboard', requireAuth, (req, res) => {
+    console.log('Rendering dashboard for user:', req.session.user.email);
+    
     // Get message from session and pass it to the view
     const message = req.session.message || null;
-
-    res.render('dashboard', {
+    
+    res.render('dashboard', { 
         user: req.session.user,
         message: message // Explicitly pass message
     });
@@ -90,12 +100,14 @@ app.get('/dashboard', requireAuth, (req, res) => {
 
 app.get('/deposit', requireAuth, (req, res) => {
     let result = req.session.result || null;
+    console.log('Rendering deposit for user:', req.session.user.email);
+    
     // Clear result from session after using it
     const message = req.session.message || null;
     if (req.session.result) {
         delete req.session.result;
     }
-
+    
     res.render('deposit', {
         user: req.session.user,
         result: result,
@@ -104,8 +116,10 @@ app.get('/deposit', requireAuth, (req, res) => {
 });
 
 app.get('/', requireAuth, (req, res) => {
+    console.log('Rendering spin page for user:', req.session.user.email);
+    
     const message = req.session.message || null;
-
+    
     res.render('spin', {
         user: req.session.user,
         message: message
@@ -115,15 +129,19 @@ app.get('/', requireAuth, (req, res) => {
 // Public routes with redirect if already authenticated
 app.get('/login', (req, res) => {
     if (req.session.user) {
+        console.log('User already logged in, redirecting to home');
         return res.redirect('/');
     }
+    console.log('Rendering login page');
     res.render('login', { error: null });
-});
+}); 
 
 app.get('/register', (req, res) => {
     if (req.session.user) {
+        console.log('User already logged in, redirecting to home');
         return res.redirect('/');
     }
+    console.log('Rendering register page');
     res.render('register', { error: null });
 });
 
@@ -134,6 +152,7 @@ app.get('/logout', (req, res) => {
         if (err) {
             console.error('Error destroying session:', err);
         }
+        console.log('User logged out:', userEmail);
         res.redirect('/login');
     });
 });
@@ -147,4 +166,14 @@ app.get('/test-auth', requireAuth, (req, res) => {
 });
 
 const port = process.env.PORT || 8080;
-app.listen(port, () => {});
+app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+    console.log('Available routes:');
+    console.log('  GET  /login');
+    console.log('  GET  /register');
+    console.log('  POST /auth/login');
+    console.log('  POST /auth/register');
+    console.log('  GET  / (protected)');
+    console.log('  GET  /dashboard (protected)');
+    console.log('  GET  /test-auth (protected)');
+});
