@@ -1,74 +1,398 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<link rel="shortcut icon" href="login.jpg" type="image/png">
-	<link rel="apple-touch-icon" href="login.jpg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="login.jpg" type="image/png">
+    <link rel="apple-touch-icon" href="login.jpg">
     <title>Register | Spin & Earn To Mpesa</title>
-    <link rel="stylesheet" href="auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --secondary-dark: #d97706;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --gray: #6b7280;
+            --success: #10b981;
+            --error: #ef4444;
+            --white: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-input {
+            padding: 0.875rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .form-input.error {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 0.5rem 0;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            margin-top: 0.125rem;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-label {
+            font-size: 0.85rem;
+            color: var(--gray);
+            line-height: 1.4;
+        }
+
+        .checkbox-label a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .checkbox-label a:hover {
+            text-decoration: underline;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .footer-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-dark);
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-	<div class="form_wrapper">
-		<div class="form_container">
-		  <div class="title_container">
-			<h2>Get Started</h2>
-		  </div>
-		  <div class="row clearfix">
-			<div class="">
-			  <form id="form" class="form" action="/register" method="post">
-				<div class="input_field"> 
-                    <span><i aria-hidden="true" class="fa fa-envelope"></i></span>
-					<input type="email" name="email" placeholder="Email" aria-label="Email" required />
-				</div>
-				<div class="input_field"> 
-                    <span><i aria-hidden="true" class="fa fa-phone"></i></span>
-					<input type="tel" name="phone" placeholder="0700000000" aria-label="Phone Number" required minlength="10" maxlength="10"/>
-				</div>
-				<div class="input_field"> 
-                    <span><i aria-hidden="true" class="fa fa-lock"></i></span>
-					<input type="password" name="password" placeholder="Password" aria-label="Password" required />
-				</div>
-				<div class="input_field"> 
-                    <span><i aria-hidden="true" class="fa fa-lock"></i></span>
-					<input type="password" name="confirmPassword" placeholder="Re-type Password" aria-label="Confirm Password" required />
-				</div>
-				<div class="row clearfix">
-				  <div class="col_half">
-					<div class="input_field"> 
-                        <span><i aria-hidden="true" class="fa fa-user"></i></span>
-						<input type="text" name="firstName" placeholder="First Name" aria-label="First Name" required />
-					</div>
-				  </div>
-				  <div class="col_half">
-					<div class="input_field"> 
-                        <span><i aria-hidden="true" class="fa fa-user"></i></span>
-						<input type="text" name="lastName" placeholder="Last Name" aria-label="Last Name" />
-					</div>
-				  </div>
-				</div>
-				<div class="input_field checkbox_option">
-				  <input type="checkbox" id="cb1" required />
-				  <label for="cb1">I agree with terms and conditions</label>
-				</div>
-				<input class="button" type="submit" value="Register" />
-			  </form>
-			</div>
-		  </div>
-		</div>
-	  </div>
-	  <p class="credit">Already have an account? <a href="/login">Sign In</a></p>
+    <div class="auth-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">🎯 Spin & Win</div>
+            <div class="title">Create Account</div>
+            <div class="subtitle">Join and start winning today</div>
+        </div>
 
-	<script>
-		document.getElementById('form').addEventListener('submit', function (event) {
-			const password = document.querySelector('input[name="password"]').value;
-			const confirmPassword = document.querySelector('input[name="confirmPassword"]').value;
-			if (password !== confirmPassword) {
-				event.preventDefault();
-				alert("Passwords do not match!");
-			}
-		});
-	</script>
+        <!-- Form -->
+        <form id="form" class="form" action="/register" method="post">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="firstName">First Name</label>
+                    <input 
+                        type="text" 
+                        name="firstName" 
+                        id="firstName"
+                        class="form-input"
+                        placeholder="First name" 
+                        required 
+                    />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="lastName">Last Name</label>
+                    <input 
+                        type="text" 
+                        name="lastName" 
+                        id="lastName"
+                        class="form-input"
+                        placeholder="Last name" 
+                    />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    id="email"
+                    class="form-input"
+                    placeholder="Enter your email" 
+                    required 
+                />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="phone">Phone Number</label>
+                <input 
+                    type="tel" 
+                    name="phone" 
+                    id="phone"
+                    class="form-input"
+                    placeholder="0712345678" 
+                    pattern="^(?:\+254|0)(7|1)\d{8}$"
+                    required 
+                />
+                <div class="error-message" id="phoneError">Please enter a valid Kenyan phone number</div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="password"
+                        class="form-input"
+                        placeholder="Create password" 
+                        required 
+                    />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        name="confirmPassword" 
+                        id="confirmPassword"
+                        class="form-input"
+                        placeholder="Confirm password" 
+                        required 
+                    />
+                </div>
+            </div>
+            <div class="error-message" id="passwordError">Passwords do not match</div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="terms" class="checkbox" required />
+                <label for="terms" class="checkbox-label">
+                    I agree with the <a href="#">terms and conditions</a>
+                </label>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Create Account
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                Already have an account? 
+                <a href="/login" class="footer-link">Sign In</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('form');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const phone = document.getElementById('phone');
+        const passwordError = document.getElementById('passwordError');
+        const phoneError = document.getElementById('phoneError');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Real-time password validation
+        confirmPassword.addEventListener('input', function() {
+            if (password.value !== confirmPassword.value) {
+                passwordError.style.display = 'block';
+                confirmPassword.classList.add('error');
+            } else {
+                passwordError.style.display = 'none';
+                confirmPassword.classList.remove('error');
+            }
+        });
+
+        // Real-time phone validation
+        phone.addEventListener('input', function() {
+            const kenyanPhoneRegex = /^(?:\+254|0)(7|1)\d{8}$/;
+            if (this.value && !kenyanPhoneRegex.test(this.value)) {
+                phoneError.style.display = 'block';
+                this.classList.add('error');
+            } else {
+                phoneError.style.display = 'none';
+                this.classList.remove('error');
+            }
+        });
+
+        form.addEventListener('submit', function(event) {
+            // Password match validation
+            if (password.value !== confirmPassword.value) {
+                event.preventDefault();
+                passwordError.style.display = 'block';
+                confirmPassword.classList.add('error');
+                return;
+            }
+
+            // Phone validation
+            const kenyanPhoneRegex = /^(?:\+254|0)(7|1)\d{8}$/;
+            if (!kenyanPhoneRegex.test(phone.value)) {
+                event.preventDefault();
+                phoneError.style.display = 'block';
+                phone.classList.add('error');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Creating Account...';
+            submitBtn.disabled = true;
+        });
+    </script>
 </body>
 </html>
