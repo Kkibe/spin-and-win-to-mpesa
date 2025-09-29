@@ -1,34 +1,28 @@
 const router = require("express").Router()
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
+const { isAuthenticated } = require('../middleware/auth');
 
-// Authentication middleware for user routes
-const requireAuth = (req, res, next) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Not authenticated" });
-    }
-    next();
-};
-
-router.put("/", requireAuth, async (req, res) => {
+// Update user data
+router.put("/", isAuthenticated, async (req, res) => {
   try {
-    // Ensure only the balance field is updated
     const updatedUser = await User.findByIdAndUpdate(
-      req.session.user._id,  // Use the user ID from the session
+      req.session.user._id,
       {
         $set: {
           balance: req.body.balance,
           gems: req.body.gems,
-          spins: req.body.spins
+          spins: req.body.spins,
+          totalSpins: req.body.totalSpins || req.session.user.totalSpins
         },
       },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
     // Update session user data
     req.session.user.balance = updatedUser.balance;
     req.session.user.gems = updatedUser.gems;
     req.session.user.spins = updatedUser.spins;
+    req.session.user.totalSpins = updatedUser.totalSpins;
 
     res.status(200).json(updatedUser);
   } catch (err) {
@@ -37,14 +31,14 @@ router.put("/", requireAuth, async (req, res) => {
 });
 
 // Activate user route
-router.put("/activate", requireAuth, async (req, res) => {
+router.put("/activate", isAuthenticated, async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(
       req.session.user._id,
       {
         $set: {
           isActivated: true,
-          spins: req.session.user.spins + 50 // Give 50 spins on activation
+          spins: (req.session.user.spins || 0) + 50 // Give 50 spins on activation
         },
       },
       { new: true }
@@ -60,8 +54,8 @@ router.put("/activate", requireAuth, async (req, res) => {
   }
 });
 
-// Other routes remain the same but add requireAuth middleware...
-router.delete("/:id", requireAuth, async (req, res) => {
+// Other user routes...
+router.delete("/:id", isAuthenticated, async (req, res) => {
   if (req.body.userId === req.params.id) {
     try {
       const user = await User.findById(req.params.id);
@@ -79,7 +73,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/:id", requireAuth, async (req, res) => {
+router.get("/:id", isAuthenticated, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     const { password, ...others } = user._doc;
@@ -89,7 +83,7 @@ router.get("/:id", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/", requireAuth, async (req, res) => {
+router.get("/", isAuthenticated, async (req, res) => {
   try {
     const users = await User.find();
     res.status(200).json(users);
