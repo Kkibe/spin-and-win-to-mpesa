@@ -454,27 +454,7 @@
         </div>
       </div>
       <button class="spin-btn" id="spinBtn">SPIN 🎮</button>
-<!-- Add this temporarily to test -->
-<button onclick="testSpinUpdate()" style="
-  background: #ef4444; 
-  color: white; 
-  padding: 10px; 
-  margin: 10px; 
-  border: none; 
-  border-radius: 8px;
-">
-  Test Spin Update
-</button>
 
-<script>
-function testSpinUpdate() {
-  const testBalance = <%= user.balance %> + 5;
-  const testGems = <%= user.gems || 0 %> + 1;
-  const testSpins = <%= user.spins || 10 %> - 1;
-  
-  updateServerData(testBalance, testGems, testSpins);
-}
-</script>
       <!-- NEW: Spins Counter -->
       <div class="spins-counter">
         Spins Remaining: <span class="spins-count" id="spinsCount"><%= user.spins || 10 %></span>
