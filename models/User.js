@@ -41,7 +41,7 @@ const UserSchema = new mongoose.Schema(
     },
     spins: {
       type: Number,
-      default: 10, // Give users 10 free spins to start
+      default: 15, // Give users 15 free spins to start
     },
     totalSpins: {
       type: Number,
