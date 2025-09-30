@@ -623,22 +623,69 @@
       return colors[Math.floor(Math.random() * colors.length)];
     }
 
-    function updateServerData(newBalance, newGems, newSpins) {
-      fetch("/users", {
-        method: "PUT",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          balance: newBalance,
-          gems: newGems,
-          spins: newSpins
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        alert('User data updated successfully');
-      })
-      .catch(error => console.error('Error updating user data:', error));
+function updateServerData(newBalance, newGems, newSpins) {
+  console.log('Updating server with:', { newBalance, newGems, newSpins });
+  
+  fetch("/users", {
+    method: "PUT",
+    headers: { 
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache'
+    },
+    credentials: 'include', // Important for sessions
+    body: JSON.stringify({
+      balance: newBalance,
+      gems: newGems,
+      spins: newSpins,
+      totalSpins: (spinsCountDiv.dataset.totalSpins || 0) + 1
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Server update successful:', data);
+    
+    // Update session data by refreshing the page or making another call
+    updateSessionData();
+  })
+  .catch(error => {
+    console.error('Error updating user data:', error);
+    // Show error to user but don't block the experience
+    showTemporaryMessage('Update failed - please refresh page', 'error');
+  });
+}
+
+function updateSessionData() {
+  // Refresh the page to get updated session data
+  setTimeout(() => {
+    window.location.reload();
+  }, 2000);
+}
+
+function showTemporaryMessage(message, type = 'info') {
+  const msg = document.createElement('div');
+  msg.textContent = message;
+  msg.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${type === 'error' ? '#ef4444' : '#10b981'};
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    z-index: 1000;
+    font-weight: 500;
+  `;
+  document.body.appendChild(msg);
+  
+  setTimeout(() => {
+    msg.remove();
+  }, 3000);
+}
 
     function handleNavigate(url) {
       window.location.pathname = url;
