@@ -9,6 +9,9 @@ const userRoute = require("./routes/user");
 const mpesaRoute = require("./routes/mpesa");
 const authRoute = require("./routes/auth");
 
+// ADD THIS LINE - Import User model
+const User = require("./models/User");
+
 const app = express();
 dotenv.config();
 
@@ -104,39 +107,104 @@ const requireAuth = (req, res, next) => {
 };
 
 // Protected routes
-app.get('/dashboard', requireAuth, (req, res) => {
+/*app.get('/dashboard', requireAuth, (req, res) => {
     console.log('Rendering dashboard for user:', req.session.user.email);
     res.render('dashboard', { 
         user: req.session.user,
         message: res.locals.message
     });
-});
-
-app.get('/deposit', requireAuth, (req, res) => {
-    let result = req.session.result || null;
-    console.log('Rendering deposit for user:', req.session.user.email);
-    
-    // Clear result from session after using it
-    if (req.session.result) {
-        delete req.session.result;
-    }
-    
-    res.render('deposit', {
-        user: req.session.user,
-        result: result,
-        message: res.locals.message
-    });
-});
-
-/*app.get('/', requireAuth, (req, res) => {
-    console.log('Rendering spin page for user:', req.session.user.email);
-    res.render('spin', {
-        user: req.session.user,
-        message: res.locals.message
-    });
 });*/
 
-// In your main.js - Update the spin route to always fetch fresh data
+app.get('/dashboard', requireAuth, async (req, res) => {
+    try {
+        // Get fresh user data from database
+        const currentUser = await User.findById(req.session.user._id);
+        
+        if (!currentUser) {
+            req.session.destroy();
+            return res.redirect('/login');
+        }
+
+        // Update session with fresh data
+        req.session.user.balance = currentUser.balance;
+        req.session.user.gems = currentUser.gems;
+        req.session.user.spins = currentUser.spins;
+        req.session.user.totalSpins = currentUser.totalSpins;
+
+        console.log('Rendering dashboard for user:', currentUser.email, 'Spins:', currentUser.spins);
+        
+        res.render('dashboard', { 
+            user: req.session.user,
+            message: res.locals.message
+        });
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        res.redirect('/login');
+    }
+});
+
+
+// Protected routes - FIXED VERSION
+/*app.get('/dashboard', requireAuth, async (req, res) => {
+    try {
+        // Get fresh user data from database
+        const currentUser = await User.findById(req.session.user._id);
+        
+        if (!currentUser) {
+            req.session.destroy();
+            return res.redirect('/login');
+        }
+
+        // Update session with fresh data
+        req.session.user.balance = currentUser.balance;
+        req.session.user.gems = currentUser.gems;
+        req.session.user.spins = currentUser.spins;
+        req.session.user.totalSpins = currentUser.totalSpins;
+
+        console.log('Rendering dashboard for user:', currentUser.email, 'Spins:', currentUser.spins);
+        
+        res.render('dashboard', { 
+            user: req.session.user,
+            message: res.locals.message
+        });
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        res.redirect('/login');
+    }
+});*/
+
+app.get('/deposit', requireAuth, async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.session.user._id);
+        
+        if (!currentUser) {
+            req.session.destroy();
+            return res.redirect('/login');
+        }
+
+        // Update session
+        req.session.user.balance = currentUser.balance;
+        req.session.user.gems = currentUser.gems;
+        req.session.user.spins = currentUser.spins;
+
+        let result = req.session.result || null;
+        
+        // Clear result from session after using it
+        if (req.session.result) {
+            delete req.session.result;
+        }
+        
+        res.render('deposit', {
+            user: req.session.user,
+            result: result,
+            message: res.locals.message
+        });
+    } catch (error) {
+        console.error('Error loading deposit page:', error);
+        res.redirect('/login');
+    }
+});
+
 app.get('/', requireAuth, async (req, res) => {
     try {
         // ALWAYS get fresh user data from database, not just session
@@ -164,6 +232,59 @@ app.get('/', requireAuth, async (req, res) => {
         res.redirect('/login');
     }
 });
+
+/*app.get('/deposit', requireAuth, (req, res) => {
+    let result = req.session.result || null;
+    console.log('Rendering deposit for user:', req.session.user.email);
+    
+    // Clear result from session after using it
+    if (req.session.result) {
+        delete req.session.result;
+    }
+    
+    res.render('deposit', {
+        user: req.session.user,
+        result: result,
+        message: res.locals.message
+    });
+});*/
+
+/*app.get('/', requireAuth, (req, res) => {
+    console.log('Rendering spin page for user:', req.session.user.email);
+    res.render('spin', {
+        user: req.session.user,
+        message: res.locals.message
+    });
+});*/
+
+// In your main.js - Update the spin route to always fetch fresh data
+/*app.get('/', requireAuth, async (req, res) => {
+    try {
+        // ALWAYS get fresh user data from database, not just session
+        const currentUser = await User.findById(req.session.user._id);
+        
+        if (!currentUser) {
+            req.session.destroy();
+            return res.redirect('/login');
+        }
+
+        // Update session with fresh data
+        req.session.user.balance = currentUser.balance;
+        req.session.user.gems = currentUser.gems;
+        req.session.user.spins = currentUser.spins;
+        req.session.user.totalSpins = currentUser.totalSpins;
+
+        console.log('Rendering spin page with fresh data - Spins:', currentUser.spins);
+        
+        res.render('spin', {
+            user: req.session.user,
+            message: res.locals.message
+        });
+    } catch (error) {
+        console.error('Error loading spin page:', error);
+        res.redirect('/login');
+    }
+});*/
 
 // Public routes with redirect if already authenticated
 app.get('/login', (req, res) => {
