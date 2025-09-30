@@ -12,25 +12,28 @@ const authRoute = require("./routes/auth");
 const app = express();
 dotenv.config();
 
-// Session configuration
+// TRUST PROXY - CRITICAL FOR GOOGLE CLOUD RUN
+app.set('trust proxy', 1);
+
+// FIXED Session configuration for Google Cloud Run
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-super-secret-key-change-in-production',
-    resave: false,
+    resave: true, // CHANGED: true for cloud environments
     saveUninitialized: false,
     cookie: { 
-        secure: false, // Set to true if using HTTPS
+        secure: true, // CHANGED: true for HTTPS in production
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        httpOnly: false, // Allow JavaScript access
+        httpOnly: true, // CHANGED: true for security
         sameSite: 'none' // Required for cross-origin
     }
 }));
 
-// Add CORS configuration for cross-origin requests
+// FIXED CORS configuration - ONLY ONCE and proper settings
 app.use(cors({
     origin: ['https://spin-to-win.onrender.com', 'https://spin-and-win-to-mpesa-api-1089664169997.europe-west1.run.app'],
     credentials: true, // Important for cookies
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
 }));
 
 // Debug middleware - only for non-static files and important routes
@@ -51,25 +54,36 @@ app.use((req, res, next) => {
   console.log('Method:', req.method);
   console.log('Session ID:', req.sessionID);
   console.log('Session User:', req.session.user);
+  console.log('Secure:', req.secure); // ADDED: Check if HTTPS
   console.log('=====================');
   next();
 });
 
-// Make user available in views - FIXED VERSION
+// Make user available in views
 app.use((req, res, next) => {
-    // Properly handle undefined session user
     res.locals.user = req.session.user || null;
+    res.locals.message = req.session.message || null;
+    
+    // Clear message after using it
+    if (req.session.message) {
+        delete req.session.message;
+    }
+    
     next();
 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+// REMOVED: app.use(cors()); // DUPLICATE - causes issues
+
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URL).then(() => {
+mongoose.connect(process.env.MONGODB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => {
     console.log('MongoDB connected');
 }).catch((error) => {
     console.error('MongoDB connection error:', error);
@@ -92,35 +106,33 @@ const requireAuth = (req, res, next) => {
 // Protected routes
 app.get('/dashboard', requireAuth, (req, res) => {
     console.log('Rendering dashboard for user:', req.session.user.email);
-    // Get message from session and pass it to the view
-    const message = req.session.message || null;
     res.render('dashboard', { 
         user: req.session.user,
-        message: message // Explicitly pass message
+        message: res.locals.message
     });
 });
 
 app.get('/deposit', requireAuth, (req, res) => {
     let result = req.session.result || null;
     console.log('Rendering deposit for user:', req.session.user.email);
+    
     // Clear result from session after using it
-    const message = req.session.message || null;
     if (req.session.result) {
         delete req.session.result;
     }
+    
     res.render('deposit', {
         user: req.session.user,
-        result,
-        message: message
+        result: result,
+        message: res.locals.message
     });
 });
 
 app.get('/', requireAuth, (req, res) => {
     console.log('Rendering spin page for user:', req.session.user.email);
-    const message = req.session.message || null;
     res.render('spin', {
         user: req.session.user,
-        message: message
+        message: res.locals.message
     });
 });
 
@@ -159,13 +171,24 @@ app.get('/logout', (req, res) => {
 app.get('/test-auth', requireAuth, (req, res) => {
     res.json({
         message: 'You are authenticated!',
-        user: req.session.user
+        user: req.session.user,
+        sessionId: req.sessionID
+    });
+});
+
+// Health check for Cloud Run
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'healthy',
+        session: req.sessionID ? 'active' : 'none',
+        user: req.session.user ? 'logged_in' : 'anonymous'
     });
 });
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
+    console.log('Environment:', process.env.NODE_ENV || 'development');
     console.log('Available routes:');
     console.log('  GET  /login');
     console.log('  GET  /register');
@@ -174,4 +197,5 @@ app.listen(port, () => {
     console.log('  GET  / (protected)');
     console.log('  GET  /dashboard (protected)');
     console.log('  GET  /test-auth (protected)');
+    console.log('  GET  /health (health check)');
 });
