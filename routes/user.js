@@ -195,7 +195,7 @@ router.delete("/:id", isAuthenticated, async (req, res) => {
   }
 });
 
-router.get("/:id", isAuthenticated, async (req, res) => {
+/*router.get("/:id", isAuthenticated, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     const { password, ...others } = user._doc;
@@ -203,8 +203,22 @@ router.get("/:id", isAuthenticated, async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
+});*/
+// Get current user data
+router.get("/me", isAuthenticated, async (req, res) => {
+  try {
+    const user = await User.findById(req.session.user._id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    const { password, ...userData } = user._doc;
+    res.status(200).json(userData);
+  } catch (err) {
+    console.error('Get user error:', err);
+    res.status(500).json({ error: "Failed to get user data" });
+  }
 });
-
 router.get("/", isAuthenticated, async (req, res) => {
   try {
     const users = await User.find();
