@@ -327,7 +327,7 @@
           <div class="stat-label">Gems</div>
         </div>
         <div class="stat-item">
-          <div class="stat-value" id="spins"><%= user.spins || 10 %></div>
+          <div class="stat-value" id="spins"><%= user.spins || 0 %></div>
           <div class="stat-label">Spins</div>
         </div>
       </div>
@@ -394,7 +394,7 @@
     // Initialize dashboard data with server values
     let balance = <%= user.balance %>;
     let gems = <%= user.gems || 0 %>;
-    let spins = <%= user.spins || 10 %>;
+    let spins = <%= user.spins || 0 %>;
 
     const balanceDiv = document.querySelector('#balance');
     const gemsDiv = document.querySelector('#gems');
@@ -419,9 +419,28 @@
     }
 
     // Update stats from server data
-    function updateStats() {
-      // Real-time updates can be implemented here if needed
-      // For now, we're using the server-rendered values
+    async function updateStats() {
+      try {
+        const response = await fetch('/users/me', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          
+          // Update UI with fresh data
+          balanceDiv.textContent = `KSH ${userData.balance}`;
+          gemsDiv.textContent = userData.gems || 0;
+          spinsDiv.textContent = userData.spins || 0;
+          
+          // Update local variables
+          balance = userData.balance;
+          gems = userData.gems || 0;
+          spins = userData.spins || 0;
+        }
+      } catch (error) {
+        console.error('Error updating stats:', error);
+      }
     }
 
     // Check for updates every 5 seconds
@@ -458,6 +477,9 @@
           setTimeout(() => ripple.remove(), 600);
         });
       });
+      
+      // Update stats immediately on page load
+      updateStats();
     });
 
     // Add ripple animation
