@@ -3,7 +3,7 @@ const User = require("../models/User");
 const { isAuthenticated } = require('../middleware/auth');
 
 // Update user data - ENHANCED VERSION
-router.put("/", isAuthenticated, async (req, res) => {
+/*router.put("/", isAuthenticated, async (req, res) => {
   try {
     console.log('Updating user data for:', req.session.user._id);
     console.log('Update data:', req.body);
@@ -51,6 +51,64 @@ router.put("/", isAuthenticated, async (req, res) => {
       res.status(200).json({
         message: "User data updated successfully",
         user: updatedUser
+      });
+    });
+
+  } catch (err) {
+    console.error('User update error:', err);
+    res.status(500).json({ 
+      error: "Failed to update user data",
+      details: err.message 
+    });
+  }
+});*/
+
+// Update user data - FIXED VERSION
+router.put("/", isAuthenticated, async (req, res) => {
+  try {
+    console.log('Updating user data for:', req.session.user._id);
+    console.log('Update data:', req.body);
+
+    // Prevent negative spins
+    const updatedSpins = Math.max(0, req.body.spins);
+    const updatedBalance = Math.max(0, req.body.balance);
+    const updatedGems = Math.max(0, req.body.gems);
+
+    const updateData = {
+      balance: updatedBalance,
+      gems: updatedGems,
+      spins: updatedSpins,
+      $inc: { totalSpins: 1 } // Always increment total spins
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.session.user._id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // CRITICAL: Update session with ACTUAL database values
+    req.session.user.balance = updatedUser.balance;
+    req.session.user.gems = updatedUser.gems;
+    req.session.user.spins = updatedUser.spins;
+    req.session.user.totalSpins = updatedUser.totalSpins;
+
+    // Save session
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: "Session update failed" });
+      }
+      
+      console.log('User updated - Spins remaining:', updatedUser.spins);
+      res.status(200).json({
+        message: "User data updated successfully",
+        user: updatedUser,
+        spinsRemaining: updatedUser.spins
       });
     });
 
