@@ -61,7 +61,7 @@ router.post('/register', async (req, res) => {
       password,
       balance: 0,
       gems: 0,
-      spins: 10,
+      spins: 20,
       isActivated: false
     });
     
