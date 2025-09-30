@@ -128,12 +128,41 @@ app.get('/deposit', requireAuth, (req, res) => {
     });
 });
 
-app.get('/', requireAuth, (req, res) => {
+/*app.get('/', requireAuth, (req, res) => {
     console.log('Rendering spin page for user:', req.session.user.email);
     res.render('spin', {
         user: req.session.user,
         message: res.locals.message
     });
+});*/
+
+// In your main.js - Update the spin route to always fetch fresh data
+app.get('/', requireAuth, async (req, res) => {
+    try {
+        // ALWAYS get fresh user data from database, not just session
+        const currentUser = await User.findById(req.session.user._id);
+        
+        if (!currentUser) {
+            req.session.destroy();
+            return res.redirect('/login');
+        }
+
+        // Update session with fresh data
+        req.session.user.balance = currentUser.balance;
+        req.session.user.gems = currentUser.gems;
+        req.session.user.spins = currentUser.spins;
+        req.session.user.totalSpins = currentUser.totalSpins;
+
+        console.log('Rendering spin page with fresh data - Spins:', currentUser.spins);
+        
+        res.render('spin', {
+            user: req.session.user,
+            message: res.locals.message
+        });
+    } catch (error) {
+        console.error('Error loading spin page:', error);
+        res.redirect('/login');
+    }
 });
 
 // Public routes with redirect if already authenticated
