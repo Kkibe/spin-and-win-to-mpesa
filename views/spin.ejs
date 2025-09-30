@@ -481,7 +481,7 @@
     let gems = <%= user.gems || 0 %>;
     let spins = <%= user.spins || 10 %>;
 
-    spinBtn.addEventListener('click', () => {
+    /*spinBtn.addEventListener('click', () => {
       if (isSpinning) return;
       if (spins <= 0) {
         alert("No spins remaining! Please activate your account to get more spins.");
@@ -538,7 +538,145 @@
           }, 1000);
         }
       }, 4200);
+    });*/
+
+spinBtn.addEventListener('click', async () => {
+  if (isSpinning) return;
+  
+  // ALWAYS check current spins from the server, not just local variable
+  const currentSpins = await getCurrentSpins();
+  
+  if (currentSpins <= 0) {
+    alert("No spins remaining! Please activate your account to get more spins.");
+    // Force refresh to get actual spin count
+    window.location.reload();
+    return;
+  }
+
+  isSpinning = true;
+  spinBtn.disabled = true;
+
+  const prizeIndex = Math.floor(Math.random() * segments.length);
+  const spinDegree = 3600 + prizeIndex * (360 / segments.length);
+
+  // Reset wheel position
+  wheel.style.transition = 'none';
+  wheel.style.transform = 'rotate(0deg)';
+  void wheel.offsetWidth;
+
+  // Start spin
+  wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+  wheel.style.transform = `rotate(${spinDegree}deg)`;
+
+  setTimeout(async () => {
+    try {
+      const prize = parseFloat(segments[prizeIndex].replace('x', ''));
+      const winnings = prize * 10;
+
+      const newBalance = balance + winnings;
+      const newGems = gems + Math.floor(winnings / 5);
+      const newSpins = currentSpins - 1; // Use server-verified spins
+
+      // Update UI immediately
+      balanceDiv.textContent = `KSH ${newBalance}`;
+      gemsDiv.textContent = newGems;
+      spinsCountDiv.textContent = newSpins;
+
+      // Update local variables
+      balance = newBalance;
+      gems = newGems;
+      spins = newSpins;
+
+      // Show winning animation
+      wheel.classList.add('winning-animation');
+      setTimeout(() => wheel.classList.remove('winning-animation'), 500);
+
+      // Show celebration
+      showCelebration(`You won ${winnings} KSH! 🎉`);
+
+      // Update server - wait for completion
+      const updateSuccess = await updateServerData(newBalance, newGems, newSpins);
+      
+      if (!updateSuccess) {
+        // If update failed, revert UI
+        balanceDiv.textContent = `KSH ${balance - winnings}`;
+        gemsDiv.textContent = gems - Math.floor(winnings / 5);
+        spinsCountDiv.textContent = currentSpins;
+        showTemporaryMessage('Update failed - spins not deducted', 'error');
+      }
+
+      isSpinning = false;
+      spinBtn.disabled = false;
+
+      // Check if spins are depleted
+      if (newSpins <= 0) {
+        setTimeout(() => {
+          alert("Spins depleted! Activate your account to get 50 more spins.");
+          // Refresh to ensure session is updated
+          setTimeout(() => window.location.reload(), 1000);
+        }, 1000);
+      }
+
+    } catch (error) {
+      console.error('Spin completion error:', error);
+      isSpinning = false;
+      spinBtn.disabled = false;
+      showTemporaryMessage('Spin failed - please try again', 'error');
+    }
+  }, 4200);
+});
+
+// NEW: Function to get current spins from server
+async function getCurrentSpins() {
+  try {
+    const response = await fetch('/users/me', {
+      credentials: 'include'
     });
+    
+    if (response.ok) {
+      const userData = await response.json();
+      return userData.spins || 0;
+    }
+  } catch (error) {
+    console.error('Error getting current spins:', error);
+  }
+  
+  return spins; // Fallback to local variable
+}
+
+// UPDATED: Enhanced update function
+async function updateServerData(newBalance, newGems, newSpins) {
+  try {
+    console.log('Updating server with:', { newBalance, newGems, newSpins });
+    
+    const response = await fetch("/users", {
+      method: "PUT",
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        balance: newBalance,
+        gems: newGems,
+        spins: newSpins
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Server update successful. Spins remaining:', data.spinsRemaining);
+    
+    return true;
+  } catch (error) {
+    console.error('Error updating user data:', error);
+    showTemporaryMessage('Update failed - changes may not be saved', 'error');
+    return false;
+  }
+}
 
     function showCelebration(message) {
       // Show celebration container
