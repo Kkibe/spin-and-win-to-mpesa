@@ -48,7 +48,6 @@
       border-radius: 24px;
       padding: 1.5rem;
       max-width: 420px;
-      /*width: 100%;*/
       box-shadow: var(--shadow);
       border: 1px solid rgba(255, 255, 255, 0.2);
       position: relative;
@@ -457,7 +456,7 @@
 
       <!-- NEW: Spins Counter -->
       <div class="spins-counter">
-        Spins Remaining: <span class="spins-count" id="spinsCount"><%= user.spins || 10 %></span>
+        Spins Remaining: <span class="spins-count" id="spinsCount"><%= user.spins || 0 %></span>
       </div>
     </div>
   </div>
@@ -479,12 +478,18 @@
     let isSpinning = false;
     let balance = <%= user.balance %>;
     let gems = <%= user.gems || 0 %>;
-    let spins = <%= user.spins || 10 %>;
+    let spins = <%= user.spins || 0 %>;
 
-    /*spinBtn.addEventListener('click', () => {
+    spinBtn.addEventListener('click', async () => {
       if (isSpinning) return;
-      if (spins <= 0) {
+      
+      // ALWAYS check current spins from the server, not just local variable
+      const currentSpins = await getCurrentSpins();
+      
+      if (currentSpins <= 0) {
         alert("No spins remaining! Please activate your account to get more spins.");
+        // Force refresh to get actual spin count
+        window.location.reload();
         return;
       }
 
@@ -494,189 +499,123 @@
       const prizeIndex = Math.floor(Math.random() * segments.length);
       const spinDegree = 3600 + prizeIndex * (360 / segments.length);
 
-      // Reset wheel position for multiple spins
+      // Reset wheel position
       wheel.style.transition = 'none';
       wheel.style.transform = 'rotate(0deg)';
-
-      // Force reflow
       void wheel.offsetWidth;
 
-      // Start spin with smooth transition
+      // Start spin
       wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
       wheel.style.transform = `rotate(${spinDegree}deg)`;
 
-      setTimeout(() => {
-        const prize = parseFloat(segments[prizeIndex].replace('x', ''));
-        const winnings = prize * 10;
+      setTimeout(async () => {
+        try {
+          const prize = parseFloat(segments[prizeIndex].replace('x', ''));
+          const winnings = prize * 10;
 
-        balance += winnings;
-        gems += Math.floor(winnings / 5);
-        spins -= 1;
+          const newBalance = balance + winnings;
+          const newGems = gems + Math.floor(winnings / 5);
+          const newSpins = currentSpins - 1; // Use server-verified spins
 
-        // Update UI
-        balanceDiv.textContent = `KSH ${balance}`;
-        gemsDiv.textContent = gems;
-        spinsCountDiv.textContent = spins;
+          // Update UI immediately
+          balanceDiv.textContent = `KSH ${newBalance}`;
+          gemsDiv.textContent = newGems;
+          spinsCountDiv.textContent = newSpins;
 
-        // Show winning animation
-        wheel.classList.add('winning-animation');
-        setTimeout(() => wheel.classList.remove('winning-animation'), 500);
+          // Update local variables
+          balance = newBalance;
+          gems = newGems;
+          spins = newSpins;
 
-        // Show full-screen celebration
-        showCelebration(`You won ${winnings} KSH! 🎉`);
+          // Show winning animation
+          wheel.classList.add('winning-animation');
+          setTimeout(() => wheel.classList.remove('winning-animation'), 500);
 
-        // Update server
-        updateServerData(balance, gems, spins);
+          // Show celebration
+          showCelebration(`You won ${winnings} KSH! 🎉`);
 
-        isSpinning = false;
-        spinBtn.disabled = false;
+          // Update server - wait for completion
+          const updateSuccess = await updateServerData(newBalance, newGems, newSpins);
+          
+          if (!updateSuccess) {
+            // If update failed, revert UI
+            balanceDiv.textContent = `KSH ${balance - winnings}`;
+            gemsDiv.textContent = gems - Math.floor(winnings / 5);
+            spinsCountDiv.textContent = currentSpins;
+            console.error('Update failed - spins not deducted');
+          }
 
-        // Check if spins are depleted
-        if (spins <= 0) {
-          setTimeout(() => {
-            alert("Spins depleted! Activate your account to get 50 more spins.");
-          }, 1000);
+          isSpinning = false;
+          spinBtn.disabled = false;
+
+          // Check if spins are depleted
+          if (newSpins <= 0) {
+            setTimeout(() => {
+              alert("Spins depleted! Activate your account to get 50 more spins.");
+              // Refresh to ensure session is updated
+              setTimeout(() => window.location.reload(), 1000);
+            }, 1000);
+          }
+
+        } catch (error) {
+          console.error('Spin completion error:', error);
+          isSpinning = false;
+          spinBtn.disabled = false;
+          console.error('Spin failed - please try again');
         }
       }, 4200);
-    });*/
+    });
 
-spinBtn.addEventListener('click', async () => {
-  if (isSpinning) return;
-  
-  // ALWAYS check current spins from the server, not just local variable
-  const currentSpins = await getCurrentSpins();
-  
-  if (currentSpins <= 0) {
-    alert("No spins remaining! Please activate your account to get more spins.");
-    // Force refresh to get actual spin count
-    window.location.reload();
-    return;
-  }
-
-  isSpinning = true;
-  spinBtn.disabled = true;
-
-  const prizeIndex = Math.floor(Math.random() * segments.length);
-  const spinDegree = 3600 + prizeIndex * (360 / segments.length);
-
-  // Reset wheel position
-  wheel.style.transition = 'none';
-  wheel.style.transform = 'rotate(0deg)';
-  void wheel.offsetWidth;
-
-  // Start spin
-  wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
-  wheel.style.transform = `rotate(${spinDegree}deg)`;
-
-  setTimeout(async () => {
-    try {
-      const prize = parseFloat(segments[prizeIndex].replace('x', ''));
-      const winnings = prize * 10;
-
-      const newBalance = balance + winnings;
-      const newGems = gems + Math.floor(winnings / 5);
-      const newSpins = currentSpins - 1; // Use server-verified spins
-
-      // Update UI immediately
-      balanceDiv.textContent = `KSH ${newBalance}`;
-      gemsDiv.textContent = newGems;
-      spinsCountDiv.textContent = newSpins;
-
-      // Update local variables
-      balance = newBalance;
-      gems = newGems;
-      spins = newSpins;
-
-      // Show winning animation
-      wheel.classList.add('winning-animation');
-      setTimeout(() => wheel.classList.remove('winning-animation'), 500);
-
-      // Show celebration
-      showCelebration(`You won ${winnings} KSH! 🎉`);
-
-      // Update server - wait for completion
-      const updateSuccess = await updateServerData(newBalance, newGems, newSpins);
+    // NEW: Function to get current spins from server
+    async function getCurrentSpins() {
+      try {
+        const response = await fetch('/users/me', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          return userData.spins || 0;
+        }
+      } catch (error) {
+        console.error('Error getting current spins:', error);
+      }
       
-      if (!updateSuccess) {
-        // If update failed, revert UI
-        balanceDiv.textContent = `KSH ${balance - winnings}`;
-        gemsDiv.textContent = gems - Math.floor(winnings / 5);
-        spinsCountDiv.textContent = currentSpins;
-        showTemporaryMessage('Update failed - spins not deducted', 'error');
+      return spins; // Fallback to local variable
+    }
+
+    // UPDATED: Enhanced update function
+    async function updateServerData(newBalance, newGems, newSpins) {
+      try {
+        console.log('Updating server with:', { newBalance, newGems, newSpins });
+        
+        const response = await fetch("/users", {
+          method: "PUT",
+          headers: { 
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            balance: newBalance,
+            gems: newGems,
+            spins: newSpins
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Server update successful. Spins remaining:', data.spinsRemaining);
+        
+        return true;
+      } catch (error) {
+        console.error('Error updating user data:', error);
+        return false;
       }
-
-      isSpinning = false;
-      spinBtn.disabled = false;
-
-      // Check if spins are depleted
-      if (newSpins <= 0) {
-        setTimeout(() => {
-          alert("Spins depleted! Activate your account to get 50 more spins.");
-          // Refresh to ensure session is updated
-          setTimeout(() => window.location.reload(), 1000);
-        }, 1000);
-      }
-
-    } catch (error) {
-      console.error('Spin completion error:', error);
-      isSpinning = false;
-      spinBtn.disabled = false;
-      showTemporaryMessage('Spin failed - please try again', 'error');
     }
-  }, 4200);
-});
-
-// NEW: Function to get current spins from server
-async function getCurrentSpins() {
-  try {
-    const response = await fetch('/users/me', {
-      credentials: 'include'
-    });
-    
-    if (response.ok) {
-      const userData = await response.json();
-      return userData.spins || 0;
-    }
-  } catch (error) {
-    console.error('Error getting current spins:', error);
-  }
-  
-  return spins; // Fallback to local variable
-}
-
-// UPDATED: Enhanced update function
-async function updateServerData(newBalance, newGems, newSpins) {
-  try {
-    console.log('Updating server with:', { newBalance, newGems, newSpins });
-    
-    const response = await fetch("/users", {
-      method: "PUT",
-      headers: { 
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        balance: newBalance,
-        gems: newGems,
-        spins: newSpins
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    console.log('Server update successful. Spins remaining:', data.spinsRemaining);
-    
-    return true;
-  } catch (error) {
-    console.error('Error updating user data:', error);
-    showTemporaryMessage('Update failed - changes may not be saved', 'error');
-    return false;
-  }
-}
 
     function showCelebration(message) {
       // Show celebration container
@@ -761,69 +700,12 @@ async function updateServerData(newBalance, newGems, newSpins) {
       return colors[Math.floor(Math.random() * colors.length)];
     }
 
-function updateServerData(newBalance, newGems, newSpins) {
-  console.log('Updating server with:', { newBalance, newGems, newSpins });
-  
-  fetch("/users", {
-    method: "PUT",
-    headers: { 
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache'
-    },
-    credentials: 'include', // Important for sessions
-    body: JSON.stringify({
-      balance: newBalance,
-      gems: newGems,
-      spins: newSpins,
-      totalSpins: (spinsCountDiv.dataset.totalSpins || 0) + 1
-    })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    function updateSessionData() {
+      // Refresh the page to get updated session data
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     }
-    return response.json();
-  })
-  .then(data => {
-    console.log('Server update successful:', data);
-    
-    // Update session data by refreshing the page or making another call
-    updateSessionData();
-  })
-  .catch(error => {
-    console.error('Error updating user data:', error);
-    // Show error to user but don't block the experience
-    showTemporaryMessage('Update failed - please refresh page', 'error');
-  });
-}
-
-function updateSessionData() {
-  // Refresh the page to get updated session data
-  setTimeout(() => {
-    window.location.reload();
-  }, 2000);
-}
-
-function showTemporaryMessage(message, type = 'info') {
-  const msg = document.createElement('div');
-  msg.textContent = message;
-  msg.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: ${type === 'error' ? '#ef4444' : '#10b981'};
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    z-index: 1000;
-    font-weight: 500;
-  `;
-  document.body.appendChild(msg);
-  
-  setTimeout(() => {
-    msg.remove();
-  }, 3000);
-}
 
     function handleNavigate(url) {
       window.location.pathname = url;
