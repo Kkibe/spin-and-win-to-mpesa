@@ -1,12 +1,13 @@
 const express = require('express');
 const path = require('path');
-const cors = require('cors'); 
+const cors = require('cors');
 const session = require('express-session');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
 const userRoute = require("./routes/user");
 const mpesaRoute = require("./routes/mpesa");
+const paystackRoute = require("./routes/paystack");
 const authRoute = require("./routes/auth");
 
 // ADD THIS LINE - Import User model
@@ -20,14 +21,16 @@ app.set('trust proxy', 1);
 
 // FIXED Session configuration for Google Cloud Run
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-super-secret-key-change-in-production',
+    secret: process.env.SESSION_SECRET || 'my-session-secret-key',
     resave: true, // CHANGED: true for cloud environments
     saveUninitialized: false,
-    cookie: { 
-        secure: true, // CHANGED: true for HTTPS in production
+    cookie: {
+        //secure: true, // CHANGED: true for HTTPS in production
+        secure: process.env.NODE_ENV === 'production', // CHANGED: Only secure in production
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
         httpOnly: true, // CHANGED: true for security
         sameSite: 'none' // Required for cross-origin
+        //sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' // CHANGED: Adjust for localhost
     }
 }));
 
@@ -42,16 +45,16 @@ app.use(cors({
 // Debug middleware - only for non-static files and important routes
 app.use((req, res, next) => {
   // Skip static files and only log important routes
-  if (req.url.startsWith('/css/') || 
-      req.url.startsWith('/js/') || 
+  if (req.url.startsWith('/css/') ||
+      req.url.startsWith('/js/') ||
       req.url.startsWith('/images/') ||
-      req.url.endsWith('.css') || 
+      req.url.endsWith('.css') ||
       req.url.endsWith('.js') ||
       req.url.endsWith('.jpg') ||
       req.url.endsWith('.png')) {
     return next();
   }
-  
+
   console.log('=== SESSION DEBUG ===');
   console.log('URL:', req.url);
   console.log('Method:', req.method);
@@ -66,18 +69,17 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     res.locals.message = req.session.message || null;
-    
+
     // Clear message after using it
     if (req.session.message) {
         delete req.session.message;
     }
-    
+
     next();
 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// REMOVED: app.use(cors()); // DUPLICATE - causes issues
 
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
@@ -96,6 +98,7 @@ mongoose.connect(process.env.MONGODB_URL, {
 app.use("/auth", authRoute);
 app.use("/users", userRoute);
 app.use("/mpesa", mpesaRoute);
+app.use("/paystack", paystackRoute);
 
 // Authentication middleware
 const requireAuth = (req, res, next) => {
@@ -109,7 +112,7 @@ const requireAuth = (req, res, next) => {
 // Protected routes
 /*app.get('/dashboard', requireAuth, (req, res) => {
     console.log('Rendering dashboard for user:', req.session.user.email);
-    res.render('dashboard', { 
+    res.render('dashboard', {
         user: req.session.user,
         message: res.locals.message
     });
@@ -119,7 +122,7 @@ app.get('/dashboard', requireAuth, async (req, res) => {
     try {
         // Get fresh user data from database
         const currentUser = await User.findById(req.session.user._id);
-        
+
         if (!currentUser) {
             req.session.destroy();
             return res.redirect('/login');
@@ -132,8 +135,8 @@ app.get('/dashboard', requireAuth, async (req, res) => {
         req.session.user.totalSpins = currentUser.totalSpins;
 
         console.log('Rendering dashboard for user:', currentUser.email, 'Spins:', currentUser.spins);
-        
-        res.render('dashboard', { 
+
+        res.render('dashboard', {
             user: req.session.user,
             message: res.locals.message
         });
@@ -149,7 +152,7 @@ app.get('/dashboard', requireAuth, async (req, res) => {
     try {
         // Get fresh user data from database
         const currentUser = await User.findById(req.session.user._id);
-        
+
         if (!currentUser) {
             req.session.destroy();
             return res.redirect('/login');
@@ -162,8 +165,8 @@ app.get('/dashboard', requireAuth, async (req, res) => {
         req.session.user.totalSpins = currentUser.totalSpins;
 
         console.log('Rendering dashboard for user:', currentUser.email, 'Spins:', currentUser.spins);
-        
-        res.render('dashboard', { 
+
+        res.render('dashboard', {
             user: req.session.user,
             message: res.locals.message
         });
@@ -173,10 +176,11 @@ app.get('/dashboard', requireAuth, async (req, res) => {
     }
 });*/
 
-app.get('/deposit', requireAuth, async (req, res) => {
+//mpesa
+/*app.get('/deposit', requireAuth, async (req, res) => {
     try {
         const currentUser = await User.findById(req.session.user._id);
-        
+
         if (!currentUser) {
             req.session.destroy();
             return res.redirect('/login');
@@ -188,12 +192,12 @@ app.get('/deposit', requireAuth, async (req, res) => {
         req.session.user.spins = currentUser.spins;
 
         let result = req.session.result || null;
-        
+
         // Clear result from session after using it
         if (req.session.result) {
             delete req.session.result;
         }
-        
+
         res.render('deposit', {
             user: req.session.user,
             result: result,
@@ -203,13 +207,46 @@ app.get('/deposit', requireAuth, async (req, res) => {
         console.error('Error loading deposit page:', error);
         res.redirect('/login');
     }
+});*/
+
+//paystack
+app.get('/deposit', requireAuth, async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.session.user._id);
+
+        if (!currentUser) {
+            req.session.destroy();
+            return res.redirect('/login');
+        }
+
+        // Update session
+        req.session.user.balance = currentUser.balance;
+        req.session.user.gems = currentUser.gems;
+        req.session.user.spins = currentUser.spins;
+
+        let result = req.session.result || null;
+
+        // Clear result from session after using it
+        if (req.session.result) {
+            delete req.session.result;
+        }
+
+        res.render('activate', {
+            user: req.session.user,
+            result: result,
+            message: res.locals.message
+        });
+    } catch (error) {
+        console.error('Error loading activation page:', error);
+        res.redirect('/login');
+    }
 });
 
 app.get('/', requireAuth, async (req, res) => {
     try {
         // ALWAYS get fresh user data from database, not just session
         const currentUser = await User.findById(req.session.user._id);
-        
+
         if (!currentUser) {
             req.session.destroy();
             return res.redirect('/login');
@@ -222,7 +259,7 @@ app.get('/', requireAuth, async (req, res) => {
         req.session.user.totalSpins = currentUser.totalSpins;
 
         console.log('Rendering spin page with fresh data - Spins:', currentUser.spins);
-        
+
         res.render('spin', {
             user: req.session.user,
             message: res.locals.message
@@ -236,12 +273,12 @@ app.get('/', requireAuth, async (req, res) => {
 /*app.get('/deposit', requireAuth, (req, res) => {
     let result = req.session.result || null;
     console.log('Rendering deposit for user:', req.session.user.email);
-    
+
     // Clear result from session after using it
     if (req.session.result) {
         delete req.session.result;
     }
-    
+
     res.render('deposit', {
         user: req.session.user,
         result: result,
@@ -262,7 +299,7 @@ app.get('/', requireAuth, async (req, res) => {
     try {
         // ALWAYS get fresh user data from database, not just session
         const currentUser = await User.findById(req.session.user._id);
-        
+
         if (!currentUser) {
             req.session.destroy();
             return res.redirect('/login');
@@ -275,7 +312,7 @@ app.get('/', requireAuth, async (req, res) => {
         req.session.user.totalSpins = currentUser.totalSpins;
 
         console.log('Rendering spin page with fresh data - Spins:', currentUser.spins);
-        
+
         res.render('spin', {
             user: req.session.user,
             message: res.locals.message
@@ -294,7 +331,7 @@ app.get('/login', (req, res) => {
     }
     console.log('Rendering login page');
     res.render('login', { error: null });
-}); 
+});
 
 app.get('/register', (req, res) => {
     if (req.session.user) {
