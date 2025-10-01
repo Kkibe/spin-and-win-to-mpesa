@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="login.jpg" type="image/png">
+    <link rel="apple-touch-icon" href="login.jpg">
+    <title>Activate Account | Spin & Earn To Mpesa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f59e0b;
+            --secondary-dark: #d97706;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --gray: #6b7280;
+            --success: #10b981;
+            --error: #ef4444;
+            --white: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .welcome {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .user-name {
+            color: var(--primary);
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Activation Card */
+        .activation-card {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .activation-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .activation-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .activation-text {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Form */
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-input {
+            padding: 1rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-input:read-only {
+            background: #f9fafb;
+            color: var(--gray);
+            cursor: not-allowed;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* OTP Modal */
+        .otp-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .otp-content {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow);
+        }
+
+        .otp-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .otp-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            letter-spacing: 0.5rem;
+        }
+
+        .otp-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .otp-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .otp-submit {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .otp-cancel {
+            background: var(--gray);
+            color: var(--white);
+        }
+
+        /* Messages */
+        .message {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .message-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Back Button */
+        .back-btn {
+            background: transparent;
+            color: var(--gray);
+            border: 1.5px solid var(--gray);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .back-btn:hover {
+            background: var(--gray);
+            color: var(--white);
+        }
+
+        /* Loading State */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="welcome">Hello, <span class="user-name"><%= user ? user.firstName : 'there' %>! 👋</span></div>
+            <div class="title">Activate Your Account</div>
+            <div class="subtitle">Deposit funds to start winning</div>
+        </div>
+
+        <!-- Activation Card -->
+        <div class="activation-card">
+            <div class="activation-icon">💰</div>
+            <div class="activation-amount">KSH 1</div>
+            <div class="activation-text">One-time activation fee</div>
+        </div>
+
+        <!-- Form -->
+        <form id="form" class="form">
+            <div class="form-group">
+                <label class="form-label" for="email">
+                    <span>📧</span>
+                    Email
+                </label>
+                <input
+                    type="email"
+                    id="email"
+                    class="form-input"
+                    placeholder="Enter your email"
+                    required
+                    value="<%= user ? user.email : '' %>"
+                    readonly
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="phoneNumber">
+                    <span>📱</span>
+                    Phone Number
+                </label>
+                <input
+                    type="tel"
+                    id="phoneNumber"
+                    class="form-input"
+                    placeholder="+254712345678 or 0712345678"
+                    required
+                    title="Please enter a valid mobile number"
+                    pattern="^(?:\+254|0)(7|1)\d{8}$"
+                    value="<%= user ? user.phone : '' %>"
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="amount">
+                    <span>💵</span>
+                    Amount
+                </label>
+                <input
+                    type="number"
+                    name="amount"
+                    id="amount"
+                    class="form-input"
+                    value="135"
+                    readonly
+                    required
+                    min="50"
+                >
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Activate Account Now
+            </button>
+        </form>
+
+        <!-- Messages -->
+        <div class="message message-success" id="successMessage" style="display: none;"></div>
+        <div class="message message-error" id="errorMessage" style="display: none;"></div>
+
+        <!-- Back Button -->
+        <button class="back-btn" onclick="handleNavigate('/dashboard')">
+            ← Back to Dashboard
+        </button>
+    </div>
+
+    <!-- OTP Modal -->
+    <div class="otp-modal" id="otpModal">
+        <div class="otp-content">
+            <div class="otp-title">Enter OTP</div>
+            <p style="margin-bottom: 1rem; color: var(--gray);">
+                Please enter the OTP sent to your phone to complete the payment.
+            </p>
+            <input type="text" class="otp-input" id="otpInput" placeholder="Enter OTP" maxlength="6">
+            <div class="otp-buttons">
+                <button type="button" class="otp-btn otp-cancel" id="cancelOtp">Cancel</button>
+                <button type="button" class="otp-btn otp-submit" id="submitOtp">Submit OTP</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentReference = null;
+        let statusCheckInterval = null;
+        let statusCheckAttempts = 0;
+        const MAX_STATUS_CHECKS = 36; // 6 minutes (10-second intervals)
+
+        // Status color mapping
+        const STATUS_COLORS = {
+            success: 'var(--success)',
+            error: 'var(--error)',
+            warning: '#f59e0b',
+            info: 'var(--primary)'
+        };
+
+        document.getElementById('form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const amount = document.getElementById('amount').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+
+            // Hide previous messages and clear any existing intervals
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            clearStatusPolling();
+
+            // Validate phone number
+            const kenyanPhoneRegex = /^(?:\+254|0)(7|1)\d{8}$/;
+            if (!kenyanPhoneRegex.test(phoneNumber)) {
+                showError("Invalid phone number format. Please use +2547XXXXXXXX or 07XXXXXXXX.");
+                return;
+            }
+
+            // Show loading state
+            setButtonLoading(submitBtn, 'Sending M-Pesa Request...');
+
+            try {
+                console.log('Initiating M-Pesa payment...');
+                const response = await fetch('/paystack/initialize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, amount, phone: phoneNumber }),
+                });
+
+                const result = await response.json();
+                console.log('Payment initialization result:', result);
+
+                if (result.success) {
+                    handlePaymentResponse(result);
+                } else {
+                    showError(result.message, result.error_type);
+                }
+            } catch (error) {
+                console.error('Payment request error:', error);
+                showError('Network error. Please check your connection and try again.', 'network_error');
+            } finally {
+                setButtonNormal(submitBtn, 'Activate Account Now');
+            }
+        });
+
+        function handlePaymentResponse(result) {
+            currentReference = result.reference;
+
+            const statusConfig = getStatusConfig(result.status, result);
+
+            switch (result.user_action) {
+                case 'authorize':
+                case 'wait':
+                    showAuthorizationRequired(result, statusConfig);
+                    startEnhancedStatusPolling(result.reference);
+                    break;
+
+                case 'enter_otp':
+                    showOtpModal();
+                    showStatusMessage(result.message, 'info');
+                    break;
+
+                case 'complete':
+                    showSuccess(result.message);
+                    setTimeout(() => window.location.href = '/dashboard', 2000);
+                    break;
+
+                case 'retry':
+                    showRetryPrompt(result, statusConfig);
+                    break;
+
+                default:
+                    showStatusMessage(result.message, statusConfig.color);
+                    if (result.requires_authorization) {
+                        startEnhancedStatusPolling(result.reference);
+                    }
+            }
+        }
+
+        function getStatusConfig(status, result) {
+            const baseConfig = {
+                abandoned: { color: 'warning', icon: '⏹️', action: 'retry' },
+                failed: { color: 'error', icon: '❌', action: 'retry' },
+                ongoing: { color: 'info', icon: '🔄', action: 'wait' },
+                pending: { color: 'info', icon: '⏳', action: 'wait' },
+                processing: { color: 'info', icon: '⚙️', action: 'wait' },
+                queued: { color: 'info', icon: '📋', action: 'wait' },
+                reversed: { color: 'warning', icon: '↩️', action: 'contact_support' },
+                success: { color: 'success', icon: '✅', action: 'complete' },
+                pay_offline: { color: 'info', icon: '📱', action: 'authorize' },
+                send_otp: { color: 'info', icon: '🔐', action: 'enter_otp' }
+            }[status] || { color: 'info', icon: 'ℹ️', action: 'wait' };
+
+            return {
+                ...baseConfig,
+                message: result.message || result.display_text || 'Processing payment...',
+                color: result.status_color || baseConfig.color,
+                icon: result.status_icon || baseConfig.icon
+            };
+        }
+
+        function showAuthorizationRequired(result, statusConfig) {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.innerHTML = `
+                <div style="text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span style="font-size: 1.5em;">${statusConfig.icon}</span>
+                        <strong style="color: ${STATUS_COLORS[statusConfig.color] || STATUS_COLORS.info};">Payment Authorization Required</strong>
+                    </div>
+                    <div style="margin: 15px 0; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 4px solid ${STATUS_COLORS[statusConfig.color] || STATUS_COLORS.info};">
+                        ${result.display_text || 'Please check your phone to complete the payment authorization.'}
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--gray);">
+                        <div>Reference: <code>${result.reference}</code></div>
+                        <div>Status: <strong>${result.status}</strong></div>
+                        <div>Started: ${new Date().toLocaleTimeString()}</div>
+                    </div>
+                    <div id="statusCheck" style="margin-top: 20px; font-size: 0.9rem;">
+                        <div style="color: var(--secondary);">
+                            🔄 Monitoring payment status...
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.8rem; color: var(--gray);">
+                            This may take 2-3 minutes. Please keep this page open.
+                        </div>
+                    </div>
+                    <div id="progressBar" style="margin-top: 15px; width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+                        <div id="progressFill" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+            `;
+            successMessage.style.display = 'block';
+        }
+
+        function startEnhancedStatusPolling(reference) {
+            clearStatusPolling();
+            statusCheckAttempts = 0;
+
+            statusCheckInterval = setInterval(async () => {
+                statusCheckAttempts++;
+                updateProgressBar();
+
+                try {
+                    const response = await fetch(`/paystack/status/${reference}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        handleStatusUpdate(result, reference);
+                    } else {
+                        showStatusError('Failed to check payment status');
+                    }
+
+                    // Stop polling conditions
+                    if (result.paid || result.can_retry || statusCheckAttempts >= MAX_STATUS_CHECKS) {
+                        clearStatusPolling();
+                        if (statusCheckAttempts >= MAX_STATUS_CHECKS) {
+                            showStatusError('Payment monitoring timeout. Please refresh and check your transaction history.');
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('Status polling error:', error);
+                    if (statusCheckAttempts >= 3) {
+                        showStatusError('Unable to monitor payment status. Please check your transaction history later.');
+                        clearStatusPolling();
+                    }
+                }
+            }, 10000); // Check every 10 seconds
+        }
+
+        function handleStatusUpdate(result, reference) {
+            const statusElement = document.getElementById('statusCheck');
+            if (!statusElement) return;
+
+            const statusConfig = getStatusConfig(result.status, result);
+            const minutesLeft = Math.ceil((MAX_STATUS_CHECKS - statusCheckAttempts) / 6);
+
+            let statusHTML = `
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span>${statusConfig.icon}</span>
+                    <strong style="color: ${STATUS_COLORS[statusConfig.color] || STATUS_COLORS.info};">${result.message}</strong>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--gray);">
+                    Check ${statusCheckAttempts}/${MAX_STATUS_CHECKS} • ~${minutesLeft} min left
+                </div>
+            `;
+
+            if (result.paid) {
+                statusHTML += `
+                    <div style="margin-top: 10px; color: var(--success);">
+                        ✅ Account activated! Redirecting...
+                    </div>
+                `;
+                setTimeout(() => window.location.href = '/dashboard', 2000);
+            } else if (result.can_retry) {
+                statusHTML += `
+                    <div style="margin-top: 10px;">
+                        <button onclick="retryPayment()" class="submit-btn" style="padding: 8px 16px; font-size: 0.9rem;">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+
+            statusElement.innerHTML = statusHTML;
+        }
+
+        function updateProgressBar() {
+            const progressFill = document.getElementById('progressFill');
+            if (progressFill) {
+                const progress = (statusCheckAttempts / MAX_STATUS_CHECKS) * 100;
+                progressFill.style.width = `${progress}%`;
+
+                // Change color based on progress
+                if (progress > 80) {
+                    progressFill.style.background = 'var(--error)';
+                } else if (progress > 60) {
+                    progressFill.style.background = 'var(--secondary)';
+                }
+            }
+        }
+
+        function showStatusError(message) {
+            const statusElement = document.getElementById('statusCheck');
+            if (statusElement) {
+                statusElement.innerHTML = `
+                    <div style="color: var(--error);">
+                        ❌ ${message}
+                    </div>
+                `;
+            }
+        }
+
+        function showError(message, errorType = 'general') {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>❌</span>
+                    <div>
+                        <strong>${message}</strong>
+                        ${errorType === 'phone_format_error' ? '<div style="font-size: 0.9rem; margin-top: 5px;">Example: +254712345678 or 0712345678</div>' : ''}
+                    </div>
+                </div>
+            `;
+            errorMessage.style.display = 'block';
+        }
+
+        function showStatusMessage(message, type = 'info') {
+            const successMessage = document.getElementById('successMessage');
+            const icons = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '❌' };
+            successMessage.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; color: ${STATUS_COLORS[type] || STATUS_COLORS.info};">
+                    <span>${icons[type]}</span>
+                    <strong>${message}</strong>
+                </div>
+            `;
+            successMessage.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            showStatusMessage(message, 'success');
+        }
+
+        function showRetryPrompt(result, statusConfig) {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.innerHTML = `
+                <div style="text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: ${STATUS_COLORS[statusConfig.color]};">
+                        <span>${statusConfig.icon}</span>
+                        <strong>${result.message}</strong>
+                    </div>
+                    <button onclick="retryPayment()" class="submit-btn" style="margin-top: 10px;">
+                        Try Payment Again
+                    </button>
+                </div>
+            `;
+            successMessage.style.display = 'block';
+        }
+
+        function retryPayment() {
+            document.getElementById('form').dispatchEvent(new Event('submit'));
+        }
+
+        function clearStatusPolling() {
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+            statusCheckAttempts = 0;
+        }
+
+        function setButtonLoading(button, text) {
+            button.classList.add('loading');
+            button.textContent = text;
+            button.disabled = true;
+        }
+
+        function setButtonNormal(button, text) {
+            button.classList.remove('loading');
+            button.textContent = text;
+            button.disabled = false;
+        }
+
+        // OTP Modal Functions (keep your existing OTP code, but add enhanced status handling)
+        function showOtpModal() {
+            document.getElementById('otpModal').style.display = 'flex';
+            document.getElementById('otpInput').focus();
+        }
+
+        function hideOtpModal() {
+            document.getElementById('otpModal').style.display = 'none';
+            document.getElementById('otpInput').value = '';
+            currentReference = null;
+            clearStatusPolling();
+        }
+
+        // Existing OTP event listeners...
+        document.getElementById('submitOtp').addEventListener('click', async function() {
+            const otp = document.getElementById('otpInput').value.trim();
+            const submitOtpBtn = document.getElementById('submitOtp');
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (!otp) {
+                showError('Please enter OTP');
+                return;
+            }
+
+            setButtonLoading(submitOtpBtn, 'Verifying OTP...');
+
+            try {
+                const response = await fetch('/paystack/submit-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ otp: otp, reference: currentReference }),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    hideOtpModal();
+                    showSuccess(result.message);
+                    setTimeout(() => window.location.href = '/dashboard', 2000);
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('OTP verification failed. Please try again.');
+            } finally {
+                setButtonNormal(submitOtpBtn, 'Submit OTP');
+            }
+        });
+
+        document.getElementById('cancelOtp').addEventListener('click', hideOtpModal);
+        document.getElementById('otpModal').addEventListener('click', function(e) {
+            if (e.target === this) hideOtpModal();
+        });
+        document.getElementById('otpInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('submitOtp').click();
+        });
+
+        // Phone number formatting and cleanup
+        document.getElementById('phoneNumber').addEventListener('input', function() {
+            const kenyanPhoneRegex = /^(?:\+254|0)(7|1)\d{8}$/;
+            const value = this.value.trim();
+
+            if (value && !kenyanPhoneRegex.test(value)) {
+                this.style.borderColor = 'var(--error)';
+                this.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+            } else {
+                this.style.borderColor = '#e5e7eb';
+                this.style.boxShadow = 'none';
+            }
+        });
+
+        document.getElementById('phoneNumber').addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (!value) return;
+
+            if (value.startsWith('07') && value.length === 10) {
+                this.value = '+254' + value.slice(1);
+            } else if (value.startsWith('254') && value.length === 12) {
+                this.value = '+' + value;
+            }
+        });
+
+        window.addEventListener('beforeunload', clearStatusPolling);
+
+        // Make retryPayment available globally
+        window.retryPayment = retryPayment;
+
+        console.log('Enhanced activation page loaded');
+    </script>
+</body>
+</html>
